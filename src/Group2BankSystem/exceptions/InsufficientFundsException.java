@@ -1,8 +1,12 @@
 package Group2BankSystem.exceptions;
 
 public class InsufficientFundsException extends Exception {
-    public InsufficientFundsException() { super("Insufficient funds"); }
-    public InsufficientFundsException(double balance, double amount) {
-        super(String.format("Balance: %.2f, Required: %.2f", balance, amount));
+    private final double available;
+    private final double requested;
+
+    public InsufficientFundsException(double available, double requested) {
+        super(String.format("Insufficient funds. Available: %.2f, Requested: %.2f", available, requested));
+        this.available = available;
+        this.requested = requested;
     }
 }
