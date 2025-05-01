@@ -2,47 +2,18 @@ package Group2BankSystem.model;
 
 import Group2BankSystem.exceptions.*;
 import java.io.Serializable;
-import java.util.Date;
 
-public class BankAccount implements Serializable {
-    protected String accountNumber;
-    protected String accountHolderName;
-    protected double balance;
-    protected String accountType;
-    protected boolean isActive;
-    protected Date dateCreated;
-    protected Date dateLastUpdated;
+public abstract class BankAccount extends Account implements Serializable {
+    protected double minimumBalance;
 
     public BankAccount(String accountNumber, String accountHolderName, double initialDeposit)
             throws InvalidAmountException {
-        if (initialDeposit < 0) throw new InvalidAmountException("Initial deposit cannot be negative");
-
-        this.accountNumber = accountNumber;
-        this.accountHolderName = accountHolderName;
-        this.balance = initialDeposit;
+        super(accountNumber, accountHolderName, initialDeposit);
+        this.minimumBalance = 0;
         this.accountType = "Bank Account";
-        this.isActive = true;
-        this.dateCreated = new Date();
-        this.dateLastUpdated = new Date();
     }
 
-    public String getAccountNumber() { return accountNumber; }
-    public String getAccountHolderName() { return accountHolderName; }
-    public double getBalance() { return balance; }
-    public String getAccountType() { return accountType; }
-    public boolean isActive() { return isActive; }
-    public Date getDateCreated() { return dateCreated; }
-    public Date getDateLastUpdated() { return dateLastUpdated; }
-
-    public void setAccountHolderName(String name) {
-        this.accountHolderName = name;
-        updateLastModifiedDate();
-    }
-
-    protected void updateLastModifiedDate() {
-        this.dateLastUpdated = new Date();
-    }
-
+    @Override
     public boolean deposit(double amount) throws InvalidAmountException, AccountClosedException {
         if (!isActive) throw new AccountClosedException(accountNumber);
         if (amount <= 0) throw new InvalidAmountException("Deposit amount must be positive");
@@ -53,11 +24,14 @@ public class BankAccount implements Serializable {
         return true;
     }
 
-    public boolean withdraw(double amount) throws InsufficientFundsException,
-            AccountClosedException, InvalidAmountException {
+    @Override
+    public boolean withdraw(double amount)
+            throws InsufficientFundsException, AccountClosedException, InvalidAmountException {
         if (!isActive) throw new AccountClosedException(accountNumber);
         if (amount <= 0) throw new InvalidAmountException("Withdrawal amount must be positive");
-        if (amount > balance) throw new InsufficientFundsException(balance, amount);
+        if (balance - amount < minimumBalance) {
+            throw new InsufficientFundsException(balance - minimumBalance, amount);
+        }
 
         balance -= amount;
         updateLastModifiedDate();
@@ -65,29 +39,26 @@ public class BankAccount implements Serializable {
         return true;
     }
 
-    public boolean transfer(BankAccount recipient, double amount)
-            throws InsufficientFundsException, AccountClosedException, InvalidAmountException {
-        if (!isActive) throw new AccountClosedException(accountNumber);
-        if (!recipient.isActive) throw new AccountClosedException(recipient.getAccountNumber());
-        if (amount <= 0) throw new InvalidAmountException("Transfer amount must be positive");
-        if (amount > balance) throw new InsufficientFundsException(balance, amount);
-
-        this.balance -= amount;
-        recipient.balance += amount;
-        this.updateLastModifiedDate();
-        recipient.updateLastModifiedDate();
-
-        TransactionManager.addTransaction(accountNumber, "TRANSFER_OUT", -amount,
-                "Transfer to " + recipient.getAccountNumber());
-        TransactionManager.addTransaction(recipient.getAccountNumber(), "TRANSFER_IN", amount,
-                "Transfer from " + accountNumber);
-
-        return true;
-    }
-
+    @Override
     public void closeAccount() {
-        isActive = false;
-        updateLastModifiedDate();
-        TransactionManager.addTransaction(accountNumber, "ACCOUNT_CLOSED", 0, "Account closed");
+        super.closeAccount();
     }
+
+    public void setMinimumBalance(double minimum) {
+        this.minimumBalance = minimum;
+    }
+
+    public void setBalance(double v) {
+        this.balance = v;
+        updateLastModifiedDate();
+    }
+
+    public abstract boolean encashCheck(double amount)
+            throws InsufficientFundsException, AccountClosedException, InvalidAmountException;
+
+    public abstract boolean chargeToCard(double amount);
+
+    public abstract boolean payCard(double amount);
+
+    public abstract double computeMonthlyInterest();
 }
