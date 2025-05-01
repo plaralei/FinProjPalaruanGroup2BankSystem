@@ -2,49 +2,54 @@ package Group2BankSystem.model;
 
 import Group2BankSystem.exceptions.*;
 
-public class CreditCardAccount extends BankAccount {
+public abstract class CreditCardAccount extends BankAccount {
     private double creditLimit;
-    private double availableCredit;
 
-    public CreditCardAccount(String accountNumber, String accountHolderName, double initialDeposit)
+    public CreditCardAccount(String accountNumber, String accountHolderName, double creditLimit)
             throws InvalidAmountException {
-        super(accountNumber, accountHolderName, initialDeposit);
+        super(accountNumber, accountHolderName, 0);
+        if (creditLimit < 5000) throw new InvalidAmountException("Minimum credit limit: 5000");
+        this.creditLimit = creditLimit;
         this.accountType = "Credit Card Account";
-        this.creditLimit = 1000.00;
-        this.availableCredit = creditLimit;
     }
 
-    public double getCreditLimit() { return creditLimit; }
-    public double getAvailableCredit() { return availableCredit; }
-
-    public void setCreditLimit(double limit) throws InvalidAmountException {
-        if (limit <= 0) throw new InvalidAmountException("Credit limit must be positive");
-        this.creditLimit = limit;
-        this.availableCredit = limit - Math.max(0, -balance);
-        updateLastModifiedDate();
-    }
-
-    public boolean chargeToCard(double amount) throws AccountClosedException,
-            InvalidAmountException, TransactionLimitException {
+    public void charge(double amount) throws TransactionLimitException, AccountClosedException {
         if (!isActive) throw new AccountClosedException(accountNumber);
-        if (amount <= 0) throw new InvalidAmountException("Charge amount must be positive");
-        if (amount > availableCredit) throw new TransactionLimitException(availableCredit);
+        if (amount > getAvailableCredit()) {
+            throw new TransactionLimitException(getAvailableCredit());
+        }
 
-        balance -= amount;
-        availableCredit -= amount;
+        balance += amount;
         updateLastModifiedDate();
-        TransactionManager.addTransaction(accountNumber, "CREDIT_CHARGE", -amount, "Credit card charge");
-        return true;
+        TransactionManager.addTransaction(accountNumber, "CREDIT_CHARGE", amount, "Credit charge");
     }
 
-    public boolean payCard(double amount) throws AccountClosedException, InvalidAmountException {
+    public void makePayment(double amount) throws AccountClosedException, InvalidAmountException {
         if (!isActive) throw new AccountClosedException(accountNumber);
         if (amount <= 0) throw new InvalidAmountException("Payment amount must be positive");
 
-        balance += amount;
-        availableCredit = Math.min(creditLimit, availableCredit + amount);
+        balance -= amount;
         updateLastModifiedDate();
-        TransactionManager.addTransaction(accountNumber, "CREDIT_PAYMENT", amount, "Credit card payment");
-        return true;
+        TransactionManager.addTransaction(accountNumber, "PAYMENT", -amount, "Credit payment");
     }
+
+    public double getAvailableCredit() {
+        return creditLimit - balance;
+    }
+
+    public double getCreditLimit() {
+        return creditLimit;
+    }
+
+    @Override
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
+
+    @Override
+    protected void validateSufficientFunds(double amount) throws InsufficientFundsException {
+    }
+
+    @Override
+    public abstract boolean transfer(BankAccount target, double amountValue);
 }
