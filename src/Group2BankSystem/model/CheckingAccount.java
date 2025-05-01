@@ -2,56 +2,46 @@ package Group2BankSystem.model;
 
 import Group2BankSystem.exceptions.*;
 
-public class CheckingAccount extends BankAccount {
+public abstract class CheckingAccount extends BankAccount {
     private double overdraftLimit;
 
     public CheckingAccount(String accountNumber, String accountHolderName, double initialDeposit)
             throws InvalidAmountException {
         super(accountNumber, accountHolderName, initialDeposit);
+        this.overdraftLimit = 1000;
+        this.minimumBalance = 300;
         this.accountType = "Checking Account";
-        this.overdraftLimit = 500.00;
     }
 
-    public double getOverdraftLimit() { return overdraftLimit; }
-    public void setOverdraftLimit(double limit) {
-        this.overdraftLimit = limit;
-        updateLastModifiedDate();
+    @Override
+    public boolean encashCheck(double amount)
+            throws InsufficientFundsException, AccountClosedException, InvalidAmountException {
+        // Encash check is effectively a withdrawal with check encashment transaction
+        withdraw(amount);
+        TransactionManager.addTransaction(accountNumber, "CHECK_ENCASHMENT", -amount, "Check encashment");
+        return true;
     }
 
     public double getAvailableBalance() {
         return balance + overdraftLimit;
     }
 
-    public double getCreditBalance() {
-        return overdraftLimit - Math.max(0, -balance);
-    }
-
-    public boolean encashCheck(double amount) throws AccountClosedException,
-            InsufficientFundsException, InvalidAmountException {
-        if (!isActive) throw new AccountClosedException(accountNumber);
-        if (amount <= 0) throw new InvalidAmountException("Check amount must be positive");
-        if (amount > getAvailableBalance()) {
-            throw new InsufficientFundsException(getAvailableBalance(), amount);
-        }
-
-        balance -= amount;
-        updateLastModifiedDate();
-        TransactionManager.addTransaction(accountNumber, "CHECK_ENCASHMENT", -amount, "Check encashment");
-        return true;
+    public double getOverdraftLimit() {
+        return overdraftLimit;
     }
 
     @Override
-    public boolean withdraw(double amount) throws InsufficientFundsException,
-            AccountClosedException, InvalidAmountException {
-        if (!isActive) throw new AccountClosedException(accountNumber);
-        if (amount <= 0) throw new InvalidAmountException("Withdrawal amount must be positive");
-        if (amount > getAvailableBalance()) {
-            throw new InsufficientFundsException(getAvailableBalance(), amount);
-        }
+    public abstract boolean transfer(BankAccount target, double amountValue);
 
-        balance -= amount;
-        updateLastModifiedDate();
-        TransactionManager.addTransaction(accountNumber, "WITHDRAWAL", -amount, "Cash withdrawal");
-        return true;
+    @Override
+    public void setActive(boolean active) {
+        this.isActive = active;
+    }
+
+    @Override
+    protected void validateSufficientFunds(double amount) throws InsufficientFundsException {
+        if (balance + overdraftLimit < amount) {
+            throw new InsufficientFundsException(balance + overdraftLimit, amount);
+        }
     }
 }
