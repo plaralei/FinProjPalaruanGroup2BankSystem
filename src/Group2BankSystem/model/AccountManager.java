@@ -1,108 +1,82 @@
 package Group2BankSystem.model;
 
-import Group2BankSystem.exceptions.*;
+import Group2BankSystem.exceptions.AccountClosedException;
 import java.io.*;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 public class AccountManager {
     private static final String ACCOUNTS_FILE = "accounts.dat";
-    private static final List<BankAccount> accounts = Collections.synchronizedList(new ArrayList<>());
-    private static final Object fileLock = new Object();
+    private static final Map<String, BankAccount> accounts = new ConcurrentHashMap<>();
 
     static {
         loadAccounts();
     }
 
+    public static synchronized void addAccount(BankAccount account) {
+        accounts.put(account.getAccountNumber(), account);
+        saveAccounts();
+    }
+
     public static List<BankAccount> getAccounts() {
-        return new ArrayList<>(accounts);
+        return new ArrayList<>(accounts.values());
     }
 
-    public static void addAccount(BankAccount account) {
-        synchronized(accounts) {
-            accounts.add(account);
-            saveAccounts();
-        }
-    }
-
-    public static boolean deleteAccount(String accountNumber) {
-        synchronized(accounts) {
-            boolean removed = accounts.removeIf(a -> a.getAccountNumber().equals(accountNumber));
-            if (removed) saveAccounts();
-            return removed;
-        }
+    @SuppressWarnings("unchecked")
+    public static <T extends BankAccount> List<T> getAccounts(Class<T> type) {
+        return accounts.values().stream()
+                .filter(type::isInstance)
+                .map(type::cast)
+                .collect(Collectors.toList());
     }
 
     public static Optional<BankAccount> getAccountByNumber(String accountNumber) {
-        return accounts.stream()
-                .filter(a -> a.getAccountNumber().equals(accountNumber))
-                .findFirst();
+        return Optional.ofNullable(accounts.get(accountNumber));
     }
 
-    public static boolean updateAccount(BankAccount updatedAccount) {
-        synchronized(accounts) {
-            Optional<BankAccount> existing = accounts.stream()
-                    .filter(a -> a.getAccountNumber().equals(updatedAccount.getAccountNumber()))
-                    .findFirst();
-
-            if (existing.isPresent()) {
-                accounts.remove(existing.get());
-                accounts.add(updatedAccount);
-                saveAccounts();
-                return true;
-            }
-            return false;
-        }
+    public static synchronized void updateAccount(BankAccount updatedAccount) {
+        accounts.put(updatedAccount.getAccountNumber(), updatedAccount);
+        saveAccounts();
     }
 
     public static List<BankAccount> searchAccounts(String query) {
         String lowerQuery = query.toLowerCase();
-        return accounts.stream()
+        return accounts.values().stream()
                 .filter(a -> a.getAccountNumber().contains(query) ||
-                        a.getAccountHolderName().toLowerCase().contains(lowerQuery) ||
-                        a.getAccountType().toLowerCase().contains(lowerQuery))
+                        a.getAccountHolderName().toLowerCase().contains(lowerQuery))
                 .collect(Collectors.toList());
     }
 
+    public static synchronized void applyMonthlyInterest() {
+        getAccounts(InvestmentAccount.class).forEach(account -> {
+            try {
+                account.applyMonthlyInterest();
+            } catch (AccountClosedException e) {
+                System.err.println("Skipped closed account: " + account.getAccountNumber());
+            }
+        });
+        saveAccounts();
+    }
+
+    private static synchronized void saveAccounts() {
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ACCOUNTS_FILE))) {
+            oos.writeObject(new ArrayList<>(accounts.values()));
+        } catch (IOException e) {
+            System.err.println("Error saving accounts: " + e.getMessage());
+        }
+    }
+
     @SuppressWarnings("unchecked")
-    private static void loadAccounts() {
-        synchronized(fileLock) {
-            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ACCOUNTS_FILE))) {
-                List<BankAccount> loaded = (List<BankAccount>) ois.readObject();
-                accounts.clear();
-                accounts.addAll(loaded);
-            } catch (FileNotFoundException e) {
-                System.out.println("No existing accounts file. Starting fresh.");
-            } catch (IOException | ClassNotFoundException e) {
-                System.err.println("Error loading accounts: " + e.getMessage());
-                accounts.clear();
-            }
-        }
-    }
-
-    public static void saveAccounts() {
-        synchronized(fileLock) {
-            try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ACCOUNTS_FILE))) {
-                oos.writeObject(new ArrayList<>(accounts));
-            } catch (IOException e) {
-                System.err.println("Error saving accounts: " + e.getMessage());
-            }
-        }
-    }
-
-    public static void applyMonthlyInterest() {
-        synchronized(accounts) {
-            accounts.stream()
-                    .filter(a -> a instanceof InvestmentAccount)
-                    .map(a -> (InvestmentAccount)a)
-                    .forEach(account -> {
-                        try {
-                            account.applyMonthlyInterest();
-                        } catch (AccountClosedException e) {
-                            System.out.println("Skipping closed account: " + account.getAccountNumber());
-                        }
-                    });
-            saveAccounts();
+    private static synchronized void loadAccounts() {
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(ACCOUNTS_FILE))) {
+            List<BankAccount> loaded = (List<BankAccount>) ois.readObject();
+            accounts.clear();
+            loaded.forEach(acc -> accounts.put(acc.getAccountNumber(), acc));
+        } catch (FileNotFoundException e) {
+            System.out.println("No existing accounts file. Starting fresh.");
+        } catch (IOException | ClassNotFoundException e) {
+            System.err.println("Error loading accounts: " + e.getMessage());
         }
     }
 }
