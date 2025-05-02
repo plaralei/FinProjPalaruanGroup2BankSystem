@@ -245,26 +245,34 @@ public class ManageAccountPanel extends JPanel {
     private void createTaskTabsForAccount(BankAccount account) {
         taskTabs.removeAll();
 
-        addTaskTab("Edit Account", createEditAccountPanel(account));
-        addTaskTab("Deposit", createDepositPanel(account));
-        addTaskTab("Withdrawal", createWithdrawalPanel(account));
-        addTaskTab("Transfer Money", createTransferMoneyPanel(account));
-        addTaskTab("Inquire Balance", createInquireBalancePanel(account));
-        addTaskTab("Close Account", createCloseAccountPanel(account));
-
         if (account instanceof CheckingAccount) {
+            addTaskTab("Edit Account", createEditAccountPanel(account));
+            addTaskTab("Deposit", createDepositPanel(account));
+            addTaskTab("Withdrawal", createWithdrawalPanel(account));
             addTaskTab("Encash Check", createEncashCheckPanel((CheckingAccount) account));
             addTaskTab("Inquire Credit Balance", createInquireCreditBalancePanel(account));
-        }
-
-        if (account instanceof InvestmentAccount) {
+            addTaskTab("Close Account", createCloseAccountPanel(account));
+        } else if (account instanceof InvestmentAccount) {
+            addTaskTab("Edit Account", createEditAccountPanel(account));
+            addTaskTab("Deposit", createDepositPanel(account));
+            addTaskTab("Withdrawal", createWithdrawalPanel(account));
             addTaskTab("Compute Monthly Interest", createComputeInterestPanel((InvestmentAccount) account));
-        }
-
-        if (account instanceof CreditCardAccount) {
+            addTaskTab("Close Account", createCloseAccountPanel(account));
+        } else if (account instanceof CreditCardAccount) {
+            addTaskTab("Edit Account", createEditAccountPanel(account));
+            addTaskTab("Deposit", createDepositPanel(account));
+            addTaskTab("Withdrawal", createWithdrawalPanel(account));
             addTaskTab("Charge to Card", createChargeCardPanel((CreditCardAccount) account));
             addTaskTab("Pay Card", createPayCardPanel((CreditCardAccount) account));
             addTaskTab("Inquire Charges and Credit", createInquireChargesPanel((CreditCardAccount) account));
+            addTaskTab("Close Account", createCloseAccountPanel(account));
+        } else if (account instanceof BankAccount) {
+            addTaskTab("Edit Account", createEditAccountPanel(account));
+            addTaskTab("Deposit", createDepositPanel(account));
+            addTaskTab("Withdrawal", createWithdrawalPanel(account));
+            addTaskTab("Transfer Money", createTransferMoneyPanel(account));
+            addTaskTab("Inquire Balance", createInquireBalancePanel(account));
+            addTaskTab("Close Account", createCloseAccountPanel(account));
         }
     }
 
