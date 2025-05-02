@@ -36,7 +36,6 @@ public class MainFrame extends JFrame {
         cardPanel.add(new ManageAccountPanel(this), MANAGE_ACCOUNTS);
         cardPanel.add(new SearchAccountPanel(this), SEARCH_ACCOUNTS);
         cardPanel.add(new GenerateReportPanel(this), REPORTS);
-        cardPanel.add(new StatementPanel(this), STATEMENTS);
 
         setLayout(new BorderLayout());
         add(navPanel, BorderLayout.WEST);
@@ -98,7 +97,6 @@ public class MainFrame extends JFrame {
             case "Manage Accounts" -> MANAGE_ACCOUNTS;
             case "Search Accounts" -> SEARCH_ACCOUNTS;
             case "Generate Reports" -> REPORTS;
-            case "Account Statements" -> STATEMENTS;
             default -> MAIN_MENU;
         };
     }
