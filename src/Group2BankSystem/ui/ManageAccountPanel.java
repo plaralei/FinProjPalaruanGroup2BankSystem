@@ -248,7 +248,6 @@ public class ManageAccountPanel extends JPanel {
         if (account instanceof CheckingAccount) {
             addTaskTab("Edit Account", createEditAccountPanel(account));
             addTaskTab("Deposit", createDepositPanel(account));
-            addTaskTab("Withdrawal", createWithdrawalPanel(account));
             addTaskTab("Encash Check", createEncashCheckPanel((CheckingAccount) account));
             addTaskTab("Inquire Credit Balance", createInquireCreditBalancePanel(account));
             addTaskTab("Close Account", createCloseAccountPanel(account));
@@ -256,14 +255,12 @@ public class ManageAccountPanel extends JPanel {
         } else if (account instanceof InvestmentAccount) {
             addTaskTab("Edit Account", createEditAccountPanel(account));
             addTaskTab("Deposit", createDepositPanel(account));
-            addTaskTab("Withdrawal", createWithdrawalPanel(account));
             addTaskTab("Compute Monthly Interest", createComputeInterestPanel((InvestmentAccount) account));
+            addTaskTab("Inquire Balance", createInquireBalancePanel(account));
             addTaskTab("Close Account", createCloseAccountPanel(account));
 
         } else if (account instanceof CreditCardAccount) {
             addTaskTab("Edit Account", createEditAccountPanel(account));
-            addTaskTab("Deposit", createDepositPanel(account));
-            addTaskTab("Withdrawal", createWithdrawalPanel(account));
             addTaskTab("Charge to Card", createChargeCardPanel((CreditCardAccount) account));
             addTaskTab("Pay Card", createPayCardPanel((CreditCardAccount) account));
             addTaskTab("Inquire Charges and Credit", createInquireChargesPanel((CreditCardAccount) account));
