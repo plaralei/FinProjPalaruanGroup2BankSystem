@@ -201,7 +201,7 @@ public class CreateAccountPanel extends JPanel {
         createBtn.addActionListener(this::createAccount);
         styleButton(createBtn);
 
-        formPanel.add(createLabel("Account Holder Name:"));
+        formPanel.add(createLabel("Account Holder Name (Surname, First Name, MI):" ));
         formPanel.add(nameField);
         formPanel.add(Box.createRigidArea(new Dimension(0, 20)));
         formPanel.add(amountLabel);
