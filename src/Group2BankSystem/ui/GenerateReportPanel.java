@@ -76,6 +76,78 @@ public class GenerateReportPanel extends JPanel {
 
         loadReportOptions();
         loadTransactions();
+        reportTable.getTableHeader().addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                int column = reportTable.columnAtPoint(e.getPoint());
+                String columnName = reportTable.getColumnName(column);
+
+                if ("Date".equals(columnName)) {
+                    JPopupMenu dateMenu = new JPopupMenu();
+
+                    JMenuItem sortMonth = new JMenuItem("Sort by Month");
+                    sortMonth.addActionListener(ev -> sortTransactionsByMonth());
+
+                    JMenuItem sortDay = new JMenuItem("Sort by Day");
+                    sortDay.addActionListener(ev -> sortTransactionsByDay());
+
+                    JMenuItem todayItem = new JMenuItem("Filter: Today");
+                    todayItem.addActionListener(ev -> filterTransactionsToday());
+
+                    JMenuItem previousItem = new JMenuItem("Filter: Previous");
+                    previousItem.addActionListener(ev -> filterTransactionsPrevious());
+
+                    dateMenu.add(sortMonth);
+                    dateMenu.add(sortDay);
+                    dateMenu.add(todayItem);
+                    dateMenu.add(previousItem);
+
+                    dateMenu.show(reportTable.getTableHeader(), e.getX(), e.getY());
+                }
+
+                if ("Type".equals(columnName)) {
+                    JPopupMenu typeMenu = new JPopupMenu();
+                    String[] types = {"ACCOUNT_CLOSED", "DEPOSIT", "WITHDRAWAL", "TRANSFER", "INTEREST", "FEES"};
+                    for (String type : types) {
+                        JMenuItem item = new JMenuItem(type);
+                        item.addActionListener(ev -> filterTransactionsByType(type));
+                        typeMenu.add(item);
+                    }
+
+                    typeMenu.show(reportTable.getTableHeader(), e.getX(), e.getY());
+                }
+
+                if ("Account Number".equals(columnName)) {
+                    JPopupMenu accountMenu = new JPopupMenu();
+
+                    JMenuItem sortAsc = new JMenuItem("Sort Ascending");
+                    sortAsc.addActionListener(ev -> sortByAccountNumber(true));
+
+                    JMenuItem sortDesc = new JMenuItem("Sort Descending");
+                    sortDesc.addActionListener(ev -> sortByAccountNumber(false));
+
+                    accountMenu.add(sortAsc);
+                    accountMenu.add(sortDesc);
+
+                    accountMenu.show(reportTable.getTableHeader(), e.getX(), e.getY());
+                }
+
+                if ("Amount".equals(columnName)) {
+                    JPopupMenu amountMenu = new JPopupMenu();
+
+                    JMenuItem sortAsc = new JMenuItem("Sort Ascending");
+                    sortAsc.addActionListener(ev -> sortByAmount(true));
+
+                    JMenuItem sortDesc = new JMenuItem("Sort Descending");
+                    sortDesc.addActionListener(ev -> sortByAmount(false));
+
+                    amountMenu.add(sortAsc);
+                    amountMenu.add(sortDesc);
+
+                    amountMenu.show(reportTable.getTableHeader(), e.getX(), e.getY());
+                }
+            }
+        });
     }
 
     private void updateButtonStyles() {
@@ -91,6 +163,97 @@ public class GenerateReportPanel extends JPanel {
                 }
             }
         }
+    }
+
+    private void filterTransactionsByType(String type) {
+        List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
+        List<Transaction> filtered = new ArrayList<>();
+        for (Transaction t : all) {
+            if (t.getType().equalsIgnoreCase(type)) {
+                filtered.add(t);
+            }
+        }
+        displayTransactions(filtered);
+    }
+
+    private void sortByAccountNumber(boolean ascending) {
+        List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
+        if (!currentTransactionType.equals("All")) {
+            all.removeIf(t -> !t.getType().equalsIgnoreCase(currentTransactionType));
+        }
+
+        all.sort(Comparator.comparing(Transaction::getAccountNumber));
+        if (!ascending) Collections.reverse(all);
+
+        displayTransactions(all);
+    }
+
+    private void sortByAmount(boolean ascending) {
+        List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
+        if (!currentTransactionType.equals("All")) {
+            all.removeIf(t -> !t.getType().equalsIgnoreCase(currentTransactionType));
+        }
+
+        all.sort(Comparator.comparingDouble(Transaction::getAmount));
+        if (!ascending) Collections.reverse(all);
+
+        displayTransactions(all);
+    }
+
+    private void sortTransactionsByMonth() {
+        List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
+        all.sort(Comparator.comparing(t -> {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(t.getDate());
+            return cal.get(Calendar.MONTH);
+        }));
+        displayTransactions(all);
+    }
+
+    private void sortTransactionsByDay() {
+        List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
+        all.sort(Comparator.comparing(t -> {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(t.getDate());
+            return cal.get(Calendar.DAY_OF_MONTH);
+        }));
+        displayTransactions(all);
+    }
+
+    private void filterTransactionsToday() {
+        Calendar cal = Calendar.getInstance();
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH);
+        int day = cal.get(Calendar.DAY_OF_MONTH);
+
+        List<Transaction> filtered = new ArrayList<>();
+        for (Transaction t : TransactionManager.getTransactionsByDateRange(new Date(0), new Date())) {
+            cal.setTime(t.getDate());
+            if (cal.get(Calendar.YEAR) == year &&
+                    cal.get(Calendar.MONTH) == month &&
+                    cal.get(Calendar.DAY_OF_MONTH) == day) {
+                filtered.add(t);
+            }
+        }
+        displayTransactions(filtered);
+    }
+
+    private void filterTransactionsPrevious() {
+        Calendar today = Calendar.getInstance();
+        Calendar yesterday = (Calendar) today.clone();
+        yesterday.add(Calendar.DAY_OF_MONTH, -1);
+
+        List<Transaction> filtered = new ArrayList<>();
+        for (Transaction t : TransactionManager.getTransactionsByDateRange(new Date(0), new Date())) {
+            Calendar cal = Calendar.getInstance();
+            cal.setTime(t.getDate());
+            if (cal.get(Calendar.YEAR) == yesterday.get(Calendar.YEAR) &&
+                    cal.get(Calendar.MONTH) == yesterday.get(Calendar.MONTH) &&
+                    cal.get(Calendar.DAY_OF_MONTH) == yesterday.get(Calendar.DAY_OF_MONTH)) {
+                filtered.add(t);
+            }
+        }
+        displayTransactions(filtered);
     }
 
     private void loadReportOptions() {
