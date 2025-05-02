@@ -109,6 +109,7 @@ public class GenerateReportPanel extends JPanel {
         JButton perAccountBtn = createActionButton("Per Account", e -> loadSummaryPerAccount());
         JButton onDemandBtn = createActionButton("On Demand Reports", e -> onDemandSearch());
 
+
         actionsPanel.add(dailyBtn);
         actionsPanel.add(editBtn);
         actionsPanel.add(summaryTypeBtn);
@@ -276,4 +277,5 @@ public class GenerateReportPanel extends JPanel {
 
         JOptionPane.showMessageDialog(this, "Could not find matching transaction to update.", "Error", JOptionPane.ERROR_MESSAGE);
     }
+
 }

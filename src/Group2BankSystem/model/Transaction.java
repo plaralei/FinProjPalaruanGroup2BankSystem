@@ -27,6 +27,7 @@ public class Transaction implements Serializable {
     private final String description;
     private boolean isReconciled;
 
+
     public Transaction(String transactionId, Date date, String accountNumber,
                        String type,
                        double amount, String description) {
