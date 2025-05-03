@@ -1,7 +1,8 @@
 package Group2BankSystem.ui;
 
-import javax.swing.*;
+import Group2BankSystem.model.*;
 import java.awt.*;
+import javax.swing.*;
 
 public class MainFrame extends JFrame {
     public static String MENU;
@@ -63,6 +64,41 @@ public class MainFrame extends JFrame {
         }
 
         return navPanel;
+    }
+
+    private void refreshBankData() {
+        // Show a loading indicator
+        JDialog loadingDialog = new JDialog(this, "Refreshing Data", true);
+        JLabel loadingLabel = new JLabel("Refreshing bank data...", JLabel.CENTER);
+        loadingLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        loadingDialog.add(loadingLabel);
+        loadingDialog.setSize(250, 100);
+        loadingDialog.setLocationRelativeTo(this);
+
+        // Use SwingWorker to perform the refresh in background
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() {
+                // Force reload both accounts and transactions data
+                AccountManager.reloadAccounts();
+                TransactionManager.reloadTransactions();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                loadingDialog.dispose();
+                JOptionPane.showMessageDialog(
+                        MainFrame.this,
+                        "Bank data refreshed successfully!",
+                        "Refresh Complete",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+        };
+
+        worker.execute();
+        loadingDialog.setVisible(true);
     }
 
     private void styleNavigationButton(JButton button) {

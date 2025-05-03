@@ -1,15 +1,12 @@
 package Group2BankSystem.ui;
 
 import Group2BankSystem.model.*;
-import Group2BankSystem.exceptions.*;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.*;
-import java.text.NumberFormat;
 import java.util.List;
 import java.util.Optional;
+import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 
 public class ManageAccountPanel extends JPanel {
     private final MainFrame frame;
@@ -136,11 +133,28 @@ public class ManageAccountPanel extends JPanel {
         panel.setBackground(new Color(245, 247, 250));
         panel.setBorder(BorderFactory.createEmptyBorder(20, 20, 20, 20));
 
+        JPanel headerPanel = new JPanel(new BorderLayout());
+        headerPanel.setBackground(new Color(245, 247, 250));
+        headerPanel.setBorder(BorderFactory.createEmptyBorder(0, 0, 10, 0));
+
+        JLabel titleLabel = new JLabel("Managing Accounts");
+        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 22));
+        titleLabel.setForeground(new Color(12, 46, 97));
+
+        JLabel typeLabel = new JLabel();
+        typeLabel.setFont(new Font("Segoe UI", Font.ITALIC, 16));
+        typeLabel.setForeground(new Color(80, 80, 80));
+
+        headerPanel.add(titleLabel, BorderLayout.WEST);
+        headerPanel.add(typeLabel, BorderLayout.EAST);
+
+        this.accountTypeLabel = typeLabel;
+
         String[] columns = {"Account Number", "Account Holder", "Balance", "Status"};
         accountsTableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return false;  // disable editing cells
+                return false;
             }
         };
 
@@ -153,10 +167,15 @@ public class ManageAccountPanel extends JPanel {
         JScrollPane scrollPane = new JScrollPane(accountsTable);
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(12, 46, 97), 2));
 
+        panel.add(headerPanel, BorderLayout.NORTH);
         panel.add(scrollPane, BorderLayout.CENTER);
 
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
         buttonsPanel.setBackground(new Color(245, 247, 250));
+
+        JButton refreshBtn = new JButton("Refresh Data");
+        refreshBtn.addActionListener(e -> refreshAccounts());
+        styleRefreshButton(refreshBtn);
 
         JButton backBtn = new JButton("Back");
         backBtn.addActionListener(e -> cardLayout.show(cardPanel, "TYPE_SELECTION"));
@@ -166,6 +185,7 @@ public class ManageAccountPanel extends JPanel {
         selectBtn.addActionListener(e -> onAccountSelected());
         stylePrimaryButton(selectBtn);
 
+        buttonsPanel.add(refreshBtn);
         buttonsPanel.add(backBtn);
         buttonsPanel.add(selectBtn);
 
@@ -174,26 +194,94 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    private JLabel accountTypeLabel;
+
+    private void styleRefreshButton(JButton btn) {
+        Color base = new Color(40, 167, 69);
+        Color hover = new Color(33, 136, 56);
+        btn.setBackground(base);
+        btn.setForeground(Color.WHITE);
+        btn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+        btn.setFocusPainted(false);
+        btn.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 24));
+        btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        try {
+            ImageIcon refreshIcon = new ImageIcon(getClass().getResource("/resources/refresh.png"));
+            if (refreshIcon.getIconWidth() > 0) {
+                btn.setIcon(refreshIcon);
+            }
+        } catch (Exception e) {
+        }
+
+        btn.addMouseListener(new MouseAdapter() {
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(hover);
+            }
+
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(base);
+            }
+        });
+    }
+
     private void loadAccounts() {
-        accountsTableModel.setRowCount(0);
-        List<? extends BankAccount> accounts;
+        if (selectedAccountType != null) {
+            accountsTableModel.setRowCount(0);
+            accountTypeLabel.setText("Type: " + selectedAccountType);
 
-        switch (selectedAccountType) {
-            case "Bank Account" -> accounts = AccountManager.getAccounts(BankAccount.class);
-            case "Checking Account" -> accounts = AccountManager.getAccounts(CheckingAccount.class);
-            case "Investment Account" -> accounts = AccountManager.getAccounts(InvestmentAccount.class);
-            case "Credit Card Account" -> accounts = AccountManager.getAccounts(CreditCardAccount.class);
-            default -> accounts = AccountManager.getAccounts();
-        }
+            List<? extends BankAccount> accounts;
 
-        for (BankAccount acc : accounts) {
-            accountsTableModel.addRow(new Object[]{
-                    acc.getAccountNumber(),
-                    acc.getAccountHolderName(),
-                    String.format("%.2f", acc.getBalance()),
-                    acc.isActive() ? "Active" : "Closed"
-            });
+            switch (selectedAccountType) {
+                case "Bank Account" -> accounts = AccountManager.getAccounts(BankAccount.class);
+                case "Checking Account" -> accounts = AccountManager.getAccounts(CheckingAccount.class);
+                case "Investment Account" -> accounts = AccountManager.getAccounts(InvestmentAccount.class);
+                case "Credit Card Account" -> accounts = AccountManager.getAccounts(CreditCardAccount.class);
+                default -> accounts = AccountManager.getAccounts();
+            }
+
+            for (BankAccount acc : accounts) {
+                accountsTableModel.addRow(new Object[]{
+                        acc.getAccountNumber(),
+                        acc.getAccountHolderName(),
+                        String.format("%.2f", acc.getBalance()),
+                        acc.isActive() ? "Active" : "Closed"
+                });
+            }
+
+            if (accounts.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                        "No " + selectedAccountType + " accounts found.",
+                        "Information",
+                        JOptionPane.INFORMATION_MESSAGE);
+            }
         }
+    }
+
+    private void refreshAccounts() {
+        JDialog loadingDialog = new JDialog(frame, "Refreshing Data", false);
+        JLabel loadingLabel = new JLabel("Refreshing account data...", JLabel.CENTER);
+        loadingLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
+        loadingDialog.add(loadingLabel);
+        loadingDialog.setSize(250, 100);
+        loadingDialog.setLocationRelativeTo(this);
+
+        SwingWorker<Void, Void> worker = new SwingWorker<>() {
+            @Override
+            protected Void doInBackground() throws Exception {
+                AccountManager.reloadAccounts();
+                return null;
+            }
+
+            @Override
+            protected void done() {
+                loadAccounts();
+                loadingDialog.dispose();
+            }
+        };
+
+        loadingDialog.setVisible(true);
+        worker.execute();
     }
 
     private JPanel createTasksPanel() {
@@ -486,7 +574,7 @@ public class ManageAccountPanel extends JPanel {
         panel.setBackground(Color.WHITE);
 
         String text;
-        if(account instanceof CreditCardAccount cca) {
+        if (account instanceof CreditCardAccount cca) {
             text = String.format("Current Credit Balance:\n%.2f", cca.getBalance());
         } else {
             text = "Not a Credit Card Account.";
@@ -657,13 +745,18 @@ public class ManageAccountPanel extends JPanel {
         btn.setBorder(BorderFactory.createEmptyBorder(12, 24, 12, 24));
         btn.setCursor(new Cursor(Cursor.HAND_CURSOR));
         btn.addMouseListener(new MouseAdapter() {
-            public void mouseEntered(MouseEvent e) { btn.setBackground(hover); }
-            public void mouseExited(MouseEvent e) { btn.setBackground(base); }
+            public void mouseEntered(MouseEvent e) {
+                btn.setBackground(hover);
+            }
+
+            public void mouseExited(MouseEvent e) {
+                btn.setBackground(base);
+            }
         });
     }
 
     public MainFrame getMainFrame() {
-        return null;
+        return frame;
     }
 
     public interface Refreshable {

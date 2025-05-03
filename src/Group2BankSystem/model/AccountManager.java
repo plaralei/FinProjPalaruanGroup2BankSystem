@@ -59,6 +59,13 @@ public class AccountManager {
         saveAccounts();
     }
 
+    /**
+     * Force a reload of accounts from the data file
+     */
+    public static synchronized void reloadAccounts() {
+        loadAccounts();
+    }
+
     private static synchronized void saveAccounts() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(ACCOUNTS_FILE))) {
             oos.writeObject(new ArrayList<>(accounts.values()));

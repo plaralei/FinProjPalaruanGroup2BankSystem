@@ -55,6 +55,10 @@ public class TransactionManager {
         return false;
     }
 
+    public static synchronized void reloadTransactions() {
+        loadTransactions();
+    }
+
     private static synchronized void saveTransactions() {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(TRANSACTIONS_FILE))) {
             oos.writeObject(new ArrayList<>(transactions.values()));
