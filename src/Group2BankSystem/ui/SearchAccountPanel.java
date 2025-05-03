@@ -53,12 +53,10 @@ public class SearchAccountPanel extends JPanel {
         resultTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         resultTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
 
-        JButton backButton = new JButton("Back to Main");
-        backButton.addActionListener(e -> frame.showCard(MainFrame.MENU));
 
         add(searchPanel, BorderLayout.NORTH);
         add(scrollPane, BorderLayout.CENTER);
-        add(backButton, BorderLayout.SOUTH);
+
 
         searchButton.addActionListener(this::performSearch);
         searchField.addActionListener(this::performSearch);
