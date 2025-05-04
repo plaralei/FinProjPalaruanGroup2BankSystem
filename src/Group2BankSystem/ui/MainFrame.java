@@ -14,7 +14,7 @@ public class MainFrame extends JFrame {
     public static final String MANAGE_ACCOUNTS = "ManageAccounts";
     public static final String SEARCH_ACCOUNTS = "SearchAccounts";
     public static final String REPORTS = "Reports";
-    public static final String STATEMENTS = "Statements";
+    public static final String ACCOUNT_STATEMENTS = "AccountStatements";
 
     public MainFrame() {
         configureFrame();
@@ -37,6 +37,7 @@ public class MainFrame extends JFrame {
         cardPanel.add(new ManageAccountPanel(this), MANAGE_ACCOUNTS);
         cardPanel.add(new SearchAccountPanel(this), SEARCH_ACCOUNTS);
         cardPanel.add(new GenerateReportPanel(this), REPORTS);
+        cardPanel.add(new AccountStatementPanel(), ACCOUNT_STATEMENTS);
 
         setLayout(new BorderLayout());
         add(navPanel, BorderLayout.WEST);
@@ -133,6 +134,7 @@ public class MainFrame extends JFrame {
             case "Manage Accounts" -> MANAGE_ACCOUNTS;
             case "Search Accounts" -> SEARCH_ACCOUNTS;
             case "Generate Reports" -> REPORTS;
+            case "Account Statements" -> ACCOUNT_STATEMENTS;
             default -> MAIN_MENU;
         };
     }
