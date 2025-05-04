@@ -6,11 +6,21 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * A dialog window used for editing details of a {@link BankAccount}.
+ * Allows modification of the account holder's name, balance, and account type.
+ */
 public class EditAccountDialog extends JDialog {
     private MainFrame frame;
     private BankAccount account;
     private boolean updated = false;
 
+    /**
+     * Constructs the EditAccountDialog for a given BankAccount.
+     *
+     * @param frame   the main application frame
+     * @param account the BankAccount to be edited
+     */
     public EditAccountDialog(MainFrame frame, BankAccount account) {
         super(frame, "Edit Account", true);
         this.frame = frame;
@@ -18,9 +28,18 @@ public class EditAccountDialog extends JDialog {
         initializeUI();
     }
 
+    /**
+     * Placeholder constructor for CreditCardAccount (not implemented).
+     *
+     * @param mainFrame the main application frame
+     * @param account   the CreditCardAccount to be edited
+     */
     public EditAccountDialog(MainFrame mainFrame, CreditCardAccount account) {
     }
 
+    /**
+     * Initializes the user interface components and layout.
+     */
     private void initializeUI() {
         setSize(400, 250);
         setLocationRelativeTo(frame);
@@ -70,6 +89,14 @@ public class EditAccountDialog extends JDialog {
         add(cancelBtn);
     }
 
+    /**
+     * Updates the account details with the provided values.
+     *
+     * @param newName   the new account holder name
+     * @param newBalance the new balance to be set
+     * @param newType   the new account type
+     * @throws InvalidAmountException if the amount is invalid for the transaction
+     */
     private void updateAccount(String newName, double newBalance, String newType)
             throws InvalidAmountException {
         if (!account.getAccountType().equals(newType)) {
@@ -103,6 +130,11 @@ public class EditAccountDialog extends JDialog {
         updated = true;
     }
 
+    /**
+     * Indicates whether the account was successfully updated.
+     *
+     * @return true if the account was updated, false otherwise
+     */
     public boolean isUpdated() {
         return updated;
     }

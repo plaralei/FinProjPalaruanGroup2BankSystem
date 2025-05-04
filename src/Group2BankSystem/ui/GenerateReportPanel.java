@@ -12,30 +12,55 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
+/**
+ * GenerateReportPanel provides a tabbed UI component for generating and interacting with various
+ * types of transaction reports in the bank system, including:
+ * <ul>
+ *     <li>Daily Transactions</li>
+ *     <li>Summary of Transactions by Type</li>
+ *     <li>Per Account Summary</li>
+ *     <li>On Demand Searchable Reports</li>
+ * </ul>
+ * This panel includes interactive features like sorting, editing transaction amounts,
+ * filtering by criteria, and loading summaries.
+ */
 public class GenerateReportPanel extends JPanel {
+    /** Tabbed pane to switch between report views */
     private final JTabbedPane tabbedPane;
 
+    /** Daily Transactions tab components */
     private final DefaultTableModel dailyTableModel;
     private final JTable dailyTable;
     private final JButton dailyLoadBtn;
     private final JButton dailyEditBtn;
 
+    /** Summary of Transactions tab components */
     private final DefaultTableModel summaryTableModel;
     private final JTable summaryTable;
     private final JButton summaryLoadBtn;
 
+    /** Per Account Summary tab components */
     private final DefaultTableModel perAccountTableModel;
     private final JTable perAccountTable;
     private final JButton perAccountLoadBtn;
 
+    /** On Demand Report tab components */
     private final DefaultTableModel onDemandTableModel;
     private final JTable onDemandTable;
     private final JTextField onDemandSearchField;
     private final JButton onDemandSearchBtn;
 
+    /** Format for displaying date and time in the reports */
     private static final SimpleDateFormat DATE_TIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+    /** The current transaction type filter used in daily transactions */
     private String currentTransactionType = "All";
 
+    /**
+     * Constructs the GenerateReportPanel and initializes the layout and components.
+     *
+     * @param mainFrame the main application frame, used if needed for modal dialogs or context
+     */
     public GenerateReportPanel(MainFrame mainFrame) {
         setLayout(new BorderLayout(12, 12));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -203,6 +228,12 @@ public class GenerateReportPanel extends JPanel {
         loadDailyTransactions();
     }
 
+    /**
+     * Displays the appropriate column-specific filter popup based on the clicked column name.
+     *
+     * @param e the MouseEvent triggered by clicking a table header
+     * @param columnName the name of the column clicked
+     */
     private void showColumnPopupForDaily(MouseEvent e, String columnName) {
         switch (columnName) {
             case "Date": showDatePopup(e); break;
@@ -212,6 +243,12 @@ public class GenerateReportPanel extends JPanel {
         }
     }
 
+    /**
+     * Displays a popup menu for sorting and filtering transactions by date.
+     * The menu allows sorting transactions by month or day, and filtering transactions for today or the previous day.
+     *
+     * @param e the MouseEvent triggering the popup menu
+     */
     private void showDatePopup(MouseEvent e) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem sortMonth = new JMenuItem("Sort by Month");
@@ -232,6 +269,12 @@ public class GenerateReportPanel extends JPanel {
         menu.show(e.getComponent(), e.getX(), e.getY());
     }
 
+    /**
+     * Displays a popup menu for filtering transactions by type.
+     * The menu contains options for each transaction type (e.g., ACCOUNT_CLOSED, DEPOSIT, WITHDRAWAL, etc.).
+     *
+     * @param e the MouseEvent triggering the popup menu
+     */
     private void showTypePopup(MouseEvent e) {
         JPopupMenu menu = new JPopupMenu();
         String[] types = {"ACCOUNT_CLOSED", "DEPOSIT", "WITHDRAWAL", "TRANSFER", "INTEREST", "FEES"};
@@ -243,6 +286,12 @@ public class GenerateReportPanel extends JPanel {
         menu.show(e.getComponent(), e.getX(), e.getY());
     }
 
+    /**
+     * Displays a popup menu for sorting transactions by account number.
+     * The menu allows sorting in ascending or descending order.
+     *
+     * @param e the MouseEvent triggering the popup menu
+     */
     private void showAccountPopup(MouseEvent e) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem asc = new JMenuItem("Sort Ascending");
@@ -254,6 +303,12 @@ public class GenerateReportPanel extends JPanel {
         menu.show(e.getComponent(), e.getX(), e.getY());
     }
 
+    /**
+     * Displays a popup menu for sorting transactions by amount.
+     * The menu allows sorting in ascending or descending order.
+     *
+     * @param e the MouseEvent triggering the popup menu
+     */
     private void showAmountPopup(MouseEvent e) {
         JPopupMenu menu = new JPopupMenu();
         JMenuItem asc = new JMenuItem("Sort Ascending");
@@ -265,6 +320,9 @@ public class GenerateReportPanel extends JPanel {
         menu.show(e.getComponent(), e.getX(), e.getY());
     }
 
+    /**
+     * Loads transactions for the current day and populates the daily transactions table.
+     */
     private void loadDailyTransactions() {
         Date start = getStartOfDay(new Date());
         Date end = getEndOfDay(new Date());
@@ -272,14 +330,29 @@ public class GenerateReportPanel extends JPanel {
         populateTable(dailyTableModel, dailyTransactions);
     }
 
+    /**
+     * Returns the end of the day for the specified date.
+     *
+     * @param date the date to calculate the end of the day
+     * @return the Date object representing the end of the day
+     */
     private Date getEndOfDay(Date date) {
         return date;
     }
 
+    /**
+     * Returns the start of the day for the specified date.
+     *
+     * @param date the date to calculate the start of the day
+     * @return the Date object representing the start of the day
+     */
     private Date getStartOfDay(Date date) {
         return date;
     }
 
+    /**
+     * Loads a summary of all transactions and populates the summary table.
+     */
     private void loadSummaryOfTransactions() {
         List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
         Map<String, Double> summary = new HashMap<>();
@@ -290,6 +363,9 @@ public class GenerateReportPanel extends JPanel {
         summary.forEach((type, amount) -> summaryTableModel.addRow(new Object[]{type, amount}));
     }
 
+    /**
+     * Loads a summary of transactions per account and populates the per-account summary table.
+     */
     private void loadSummaryPerAccount() {
         List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
         Map<String, Double> summary = new HashMap<>();
@@ -300,6 +376,10 @@ public class GenerateReportPanel extends JPanel {
         summary.forEach((acc, amount) -> perAccountTableModel.addRow(new Object[]{acc, amount}));
     }
 
+    /**
+     * Performs a search for transactions based on the text entered in the search field.
+     * If the search term is empty, a warning message is shown.
+     */
     private void performOnDemandSearch() {
         String keyword = onDemandSearchField.getText().trim();
         if (keyword.isEmpty()) {
@@ -310,6 +390,12 @@ public class GenerateReportPanel extends JPanel {
         populateTable(onDemandTableModel, results);
     }
 
+    /**
+     * Populates the given table model with the provided list of transactions.
+     *
+     * @param model the table model to populate
+     * @param transactions the list of transactions to display in the table
+     */
     private void populateTable(DefaultTableModel model, List<Transaction> transactions) {
         model.setRowCount(0);
         for (Transaction t : transactions) {
@@ -325,6 +411,10 @@ public class GenerateReportPanel extends JPanel {
         }
     }
 
+    /**
+     * Edits the amount of the selected transaction in the daily transactions table.
+     * If no transaction is selected, a warning message is shown.
+     */
     private void editTransaction() {
         int selectedRow = dailyTable.getSelectedRow();
         if (selectedRow == -1) {
@@ -342,6 +432,11 @@ public class GenerateReportPanel extends JPanel {
         }
     }
 
+    /**
+     * Updates the amount for a transaction in the system and reloads the daily transactions.
+     *
+     * @param row the row index of the transaction to update
+     */
     private void updateTransactionAmount(int row) {
         String dateStr = (String) dailyTableModel.getValueAt(row, 0);
         String type = (String) dailyTableModel.getValueAt(row, 1);
@@ -366,6 +461,9 @@ public class GenerateReportPanel extends JPanel {
         }
     }
 
+    /**
+     * Sorts transactions by month and updates the daily transactions table.
+     */
     private void sortTransactionsByMonth() {
         List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
         all.sort(Comparator.comparing(t -> {
@@ -376,6 +474,9 @@ public class GenerateReportPanel extends JPanel {
         populateTable(dailyTableModel, all);
     }
 
+    /**
+     * Sorts transactions by day and updates the daily transactions table.
+     */
     private void sortTransactionsByDay() {
         List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
         all.sort(Comparator.comparing(t -> {
@@ -386,6 +487,9 @@ public class GenerateReportPanel extends JPanel {
         populateTable(dailyTableModel, all);
     }
 
+    /**
+     * Filters transactions to show only those that occurred today and updates the daily transactions table.
+     */
     private void filterTransactionsToday() {
         Calendar cal = Calendar.getInstance();
         int y = cal.get(Calendar.YEAR), m = cal.get(Calendar.MONTH), d = cal.get(Calendar.DAY_OF_MONTH);
@@ -397,6 +501,9 @@ public class GenerateReportPanel extends JPanel {
         populateTable(dailyTableModel, filtered);
     }
 
+    /**
+     * Filters transactions to show only those that occurred the previous day and updates the daily transactions table.
+     */
     private void filterTransactionsPrevious() {
         Calendar today = Calendar.getInstance();
         Calendar yesterday = (Calendar) today.clone();
@@ -412,6 +519,12 @@ public class GenerateReportPanel extends JPanel {
         populateTable(dailyTableModel, filtered);
     }
 
+    /**
+     * Sorts transactions by account number and updates the daily transactions table.
+     * The sorting order is determined by the specified ascending flag.
+     *
+     * @param ascending whether to sort in ascending order (true) or descending order (false)
+     */
     private void sortByAccountNumber(boolean ascending) {
         List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
         if (!currentTransactionType.equals("All")) all.removeIf(t -> !t.getType().equalsIgnoreCase(currentTransactionType));
@@ -420,6 +533,12 @@ public class GenerateReportPanel extends JPanel {
         populateTable(dailyTableModel, all);
     }
 
+    /**
+     * Sorts transactions by amount and updates the daily transactions table.
+     * The sorting order is determined by the specified ascending flag.
+     *
+     * @param ascending whether to sort in ascending order (true) or descending order (false)
+     */
     private void sortByAmount(boolean ascending) {
         List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
         if (!currentTransactionType.equals("All")) all.removeIf(t -> !t.getType().equalsIgnoreCase(currentTransactionType));
@@ -428,6 +547,11 @@ public class GenerateReportPanel extends JPanel {
         populateTable(dailyTableModel, all);
     }
 
+    /**
+     * Filters transactions by the specified type and updates the daily transactions table.
+     *
+     * @param type the transaction type to filter by
+     */
     private void filterTransactionsByType(String type) {
         List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
         List<Transaction> filtered = new ArrayList<>();
@@ -438,6 +562,9 @@ public class GenerateReportPanel extends JPanel {
         populateTable(dailyTableModel, filtered);
     }
 
+    /**
+     * Sorts the summary of transactions by amount and updates the summary table.
+     */
     private void sortSummaryByAmount() {
         int count = summaryTableModel.getRowCount();
         List<Object[]> rows = new ArrayList<>();
@@ -449,6 +576,9 @@ public class GenerateReportPanel extends JPanel {
         for (Object[] r : rows) summaryTableModel.addRow(r);
     }
 
+    /**
+     * Sorts the per-account transaction summary by account number and updates the per-account table.
+     */
     private void sortPerAccountByAccountNumber() {
         int count = perAccountTableModel.getRowCount();
         List<Object[]> rows = new ArrayList<>();
@@ -460,6 +590,9 @@ public class GenerateReportPanel extends JPanel {
         for (Object[] r : rows) perAccountTableModel.addRow(r);
     }
 
+    /**
+     * Sorts the per-account transaction summary by amount and updates the per-account table.
+     */
     private void sortPerAccountByAmount() {
         int count = perAccountTableModel.getRowCount();
         List<Object[]> rows = new ArrayList<>();
@@ -471,6 +604,11 @@ public class GenerateReportPanel extends JPanel {
         for (Object[] r : rows) perAccountTableModel.addRow(r);
     }
 
+    /**
+     * Sorts the on-demand search results table by the specified column and updates the table.
+     *
+     * @param columnName the name of the column to sort by
+     */
     private void sortOnDemandTable(String columnName) {
         int count = onDemandTableModel.getRowCount();
         List<Object[]> rows = new ArrayList<>();
@@ -503,6 +641,11 @@ public class GenerateReportPanel extends JPanel {
         for (Object[] r : rows) onDemandTableModel.addRow(r);
     }
 
+    /**
+     * Styles the given button to have a custom background, foreground, font, and hover effects.
+     *
+     * @param btn the button to style
+     */
     private void styleButton(JButton btn) {
         btn.setBackground(new Color(12, 46, 97));
         btn.setForeground(Color.WHITE);
@@ -516,6 +659,11 @@ public class GenerateReportPanel extends JPanel {
         });
     }
 
+    /**
+     * Customizes the appearance of the given table with specific row height, font settings, and selection mode.
+     *
+     * @param table the table to customize
+     */
     private void customizeTable(JTable table) {
         table.setRowHeight(30);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 16));

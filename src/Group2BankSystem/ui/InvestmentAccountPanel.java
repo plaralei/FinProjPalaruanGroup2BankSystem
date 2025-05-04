@@ -6,11 +6,20 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * A panel that provides user interface components for managing {@link InvestmentAccount}s.
+ * Includes options to edit, deposit, view balance, compute interest, and close accounts.
+ */
 public class InvestmentAccountPanel extends JPanel implements ManageAccountPanel.Refreshable {
     private final ManageAccountPanel parent;
     private final InvestmentAccountTableModel tableModel;
     private final JTable accountTable;
 
+    /**
+     * Constructs an InvestmentAccountPanel.
+     *
+     * @param parent the parent {@link ManageAccountPanel} containing this panel
+     */
     public InvestmentAccountPanel(ManageAccountPanel parent) {
         this.parent = parent;
         setLayout(new BorderLayout());
@@ -35,12 +44,24 @@ public class InvestmentAccountPanel extends JPanel implements ManageAccountPanel
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Creates a JButton for the given operation.
+     *
+     * @param text   the button label
+     * @param action the action listener to perform when clicked
+     * @return the created JButton
+     */
     private JButton createOperationButton(String text, ActionListener action) {
         JButton button = new JButton(text);
         button.addActionListener(action);
         return button;
     }
 
+    /**
+     * Retrieves the currently selected {@link InvestmentAccount}.
+     *
+     * @return the selected InvestmentAccount, or null if none selected
+     */
     private InvestmentAccount getSelectedAccount() {
         int row = accountTable.getSelectedRow();
         if (row == -1) {
@@ -50,6 +71,11 @@ public class InvestmentAccountPanel extends JPanel implements ManageAccountPanel
         return tableModel.getAccountAt(row);
     }
 
+    /**
+     * Opens a dialog to edit the selected account.
+     *
+     * @param e the action event
+     */
     private void editAccount(ActionEvent e) {
         InvestmentAccount account = getSelectedAccount();
         if (account != null) {
@@ -58,6 +84,11 @@ public class InvestmentAccountPanel extends JPanel implements ManageAccountPanel
         }
     }
 
+    /**
+     * Prompts user to enter deposit amount and deposits it into the selected account.
+     *
+     * @param e the action event
+     */
     private void deposit(ActionEvent e) {
         InvestmentAccount account = getSelectedAccount();
         if (account == null) return;
@@ -76,6 +107,11 @@ public class InvestmentAccountPanel extends JPanel implements ManageAccountPanel
         }
     }
 
+    /**
+     * Computes and displays the monthly interest for the selected account.
+     *
+     * @param e the action event
+     */
     private void computeInterest(ActionEvent e) {
         InvestmentAccount account = getSelectedAccount();
         if (account == null) return;
@@ -86,6 +122,11 @@ public class InvestmentAccountPanel extends JPanel implements ManageAccountPanel
                 "Interest Calculation", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Displays the balance and interest details of the selected account.
+     *
+     * @param e the action event
+     */
     private void viewBalance(ActionEvent e) {
         InvestmentAccount account = getSelectedAccount();
         if (account == null) return;
@@ -99,6 +140,11 @@ public class InvestmentAccountPanel extends JPanel implements ManageAccountPanel
         JOptionPane.showMessageDialog(this, message, "Account Details", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Prompts user for confirmation and closes the selected account.
+     *
+     * @param e the action event
+     */
     private void closeAccount(ActionEvent e) {
         InvestmentAccount account = getSelectedAccount();
         if (account == null) return;
@@ -114,10 +160,18 @@ public class InvestmentAccountPanel extends JPanel implements ManageAccountPanel
         }
     }
 
+    /**
+     * Shows an error message in a dialog.
+     *
+     * @param message the error message to display
+     */
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    /**
+     * Refreshes the account table model.
+     */
     @Override
     public void refresh() {
         tableModel.refresh();
