@@ -9,6 +9,18 @@ import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.List;
 
+/**
+ * The {@code AccountStatementPanel} class provides a GUI panel that allows users to
+ * generate and view account statements for specific bank accounts over different time frames.
+ * Users can select an account, choose a time frame (Monthly, Quarterly, or Yearly),
+ * generate a transaction report, and print the statement.
+ * <p>
+ * This panel utilizes {@code AccountManager} and {@code TransactionManager} to retrieve account
+ * and transaction data.
+ * </p>
+ *
+ * @author
+ */
 public class AccountStatementPanel extends JPanel {
     private final JComboBox<String> accountComboBox;
     private final JComboBox<String> timeFrameComboBox;
@@ -21,6 +33,11 @@ public class AccountStatementPanel extends JPanel {
     private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd");
     private static final SimpleDateFormat DATETIME_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
+    /**
+     * Constructs a new {@code AccountStatementPanel} with all necessary UI components
+     * for selecting an account, choosing a time frame, displaying the statement table,
+     * and showing the current balance.
+     */
     public AccountStatementPanel() {
         setLayout(new BorderLayout(12, 12));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
@@ -68,8 +85,7 @@ public class AccountStatementPanel extends JPanel {
         statementTableModel = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
             @Override public Class<?> getColumnClass(int col) {
-                if (col == 2) return Double.class;
-                return String.class;
+                return col == 2 ? Double.class : String.class;
             }
         };
         statementTable = new JTable(statementTableModel);
@@ -85,6 +101,9 @@ public class AccountStatementPanel extends JPanel {
         add(balanceLabel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Populates the account selection combo box with available bank accounts.
+     */
     private void populateAccountComboBox() {
         accountComboBox.removeAllItems();
         List<BankAccount> accounts = AccountManager.getAccounts();
@@ -93,15 +112,20 @@ public class AccountStatementPanel extends JPanel {
         }
     }
 
+    /**
+     * Generates the account statement based on the selected account and time frame,
+     * then updates the transaction table and balance label accordingly.
+     */
     private void generateStatement() {
         if (accountComboBox.getSelectedIndex() == -1) {
             JOptionPane.showMessageDialog(this, "Please select an account.", "Warning", JOptionPane.WARNING_MESSAGE);
             return;
         }
+
         String selectedAccountInfo = (String) accountComboBox.getSelectedItem();
         String accountNumber = selectedAccountInfo.split(" - ")[0];
-
         BankAccount account = AccountManager.getAccountByNumber(accountNumber).orElse(null);
+
         if (account == null) {
             JOptionPane.showMessageDialog(this, "Account not found.", "Error", JOptionPane.ERROR_MESSAGE);
             return;
@@ -112,7 +136,6 @@ public class AccountStatementPanel extends JPanel {
         Date endDate = new Date();
 
         List<Transaction> transactions = TransactionManager.getTransactionsByDateRange(startDate, endDate);
-
         transactions.removeIf(t -> !t.getAccountNumber().equals(accountNumber));
 
         statementTableModel.setRowCount(0);
@@ -124,9 +147,16 @@ public class AccountStatementPanel extends JPanel {
                     t.getDescription()
             });
         }
+
         balanceLabel.setText(String.format("Current Balance: ₱%.2f", account.getBalance()));
     }
 
+    /**
+     * Determines the start date based on the selected time frame.
+     *
+     * @param timeFrame The selected time frame: "Monthly", "Quarterly", or "Yearly".
+     * @return The start {@code Date} corresponding to the beginning of the selected period.
+     */
     private Date getStartDate(String timeFrame) {
         Calendar cal = Calendar.getInstance();
         switch (timeFrame) {
@@ -151,6 +181,10 @@ public class AccountStatementPanel extends JPanel {
         return cal.getTime();
     }
 
+    /**
+     * Prints the statement table using the default print dialog.
+     * Displays an appropriate message based on the outcome of the print job.
+     */
     private void printStatement() {
         try {
             boolean complete = statementTable.print();
@@ -164,6 +198,11 @@ public class AccountStatementPanel extends JPanel {
         }
     }
 
+    /**
+     * Applies consistent styling to buttons, including color, font, and hover effects.
+     *
+     * @param btn The button to be styled.
+     */
     private void styleButton(JButton btn) {
         btn.setBackground(new Color(12, 46, 97));
         btn.setForeground(Color.WHITE);
@@ -171,6 +210,7 @@ public class AccountStatementPanel extends JPanel {
         btn.setFocusPainted(false);
         btn.setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
         btn.setBorder(BorderFactory.createEmptyBorder(5, 10, 5, 10));
+
         btn.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseEntered(java.awt.event.MouseEvent e) {
                 btn.setBackground(new Color(8, 32, 70));
@@ -181,11 +221,15 @@ public class AccountStatementPanel extends JPanel {
         });
     }
 
+    /**
+     * Configures the table's appearance and selection behavior.
+     *
+     * @param table The {@code JTable} to be customized.
+     */
     private void customizeTable(JTable table) {
         table.setRowHeight(30);
         table.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
-
 }

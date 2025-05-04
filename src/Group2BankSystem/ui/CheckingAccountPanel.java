@@ -6,11 +6,26 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * {@code CheckingAccountPanel} is a user interface panel that allows users to manage
+ * {@link CheckingAccount} objects. It provides functionality to edit account details,
+ * deposit funds, encash checks, view balances, and close accounts.
+ * <p>
+ * This panel is typically used within a {@link ManageAccountPanel} context.
+ * </p>
+ *
+ * @author
+ */
 public class CheckingAccountPanel extends JPanel implements ManageAccountPanel.Refreshable {
     private final ManageAccountPanel parent;
     private final CheckingAccountTableModel tableModel;
     private final JTable accountTable;
 
+    /**
+     * Constructs a new {@code CheckingAccountPanel} associated with the given parent panel.
+     *
+     * @param parent the parent {@code ManageAccountPanel} that holds this panel
+     */
     public CheckingAccountPanel(ManageAccountPanel parent) {
         this.parent = parent;
         setLayout(new BorderLayout());
@@ -30,17 +45,29 @@ public class CheckingAccountPanel extends JPanel implements ManageAccountPanel.R
         buttonPanel.add(createOperationButton("Encash Check", this::encashCheck));
         buttonPanel.add(createOperationButton("View Balance", this::viewBalance));
         buttonPanel.add(createOperationButton("Close Account", this::closeAccount));
-        buttonPanel.add(new JLabel());
+        buttonPanel.add(new JLabel()); // filler
 
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Creates a JButton with the given label and action.
+     *
+     * @param text   the button text
+     * @param action the action to perform when the button is clicked
+     * @return a configured {@code JButton}
+     */
     private JButton createOperationButton(String text, ActionListener action) {
         JButton button = new JButton(text);
         button.addActionListener(action);
         return button;
     }
 
+    /**
+     * Retrieves the currently selected {@code CheckingAccount} from the table.
+     *
+     * @return the selected {@code CheckingAccount}, or {@code null} if none selected
+     */
     private CheckingAccount getSelectedAccount() {
         int row = accountTable.getSelectedRow();
         if (row == -1) {
@@ -50,6 +77,11 @@ public class CheckingAccountPanel extends JPanel implements ManageAccountPanel.R
         return tableModel.getAccountAt(row);
     }
 
+    /**
+     * Handles the edit account action. Opens a dialog for editing the selected account.
+     *
+     * @param e the action event
+     */
     private void editAccount(ActionEvent e) {
         CheckingAccount account = getSelectedAccount();
         if (account != null) {
@@ -58,6 +90,11 @@ public class CheckingAccountPanel extends JPanel implements ManageAccountPanel.R
         }
     }
 
+    /**
+     * Handles the deposit action for the selected account.
+     *
+     * @param e the action event
+     */
     private void deposit(ActionEvent e) {
         CheckingAccount account = getSelectedAccount();
         if (account == null) return;
@@ -76,6 +113,11 @@ public class CheckingAccountPanel extends JPanel implements ManageAccountPanel.R
         }
     }
 
+    /**
+     * Handles the encash check action for the selected account.
+     *
+     * @param e the action event
+     */
     private void encashCheck(ActionEvent e) {
         CheckingAccount account = getSelectedAccount();
         if (account == null) return;
@@ -94,6 +136,11 @@ public class CheckingAccountPanel extends JPanel implements ManageAccountPanel.R
         }
     }
 
+    /**
+     * Displays the balance and overdraft details for the selected account.
+     *
+     * @param e the action event
+     */
     private void viewBalance(ActionEvent e) {
         CheckingAccount account = getSelectedAccount();
         if (account == null) return;
@@ -110,6 +157,11 @@ public class CheckingAccountPanel extends JPanel implements ManageAccountPanel.R
         JOptionPane.showMessageDialog(this, message, "Account Details", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Closes the selected account after user confirmation.
+     *
+     * @param e the action event
+     */
     private void closeAccount(ActionEvent e) {
         CheckingAccount account = getSelectedAccount();
         if (account == null) return;
@@ -125,10 +177,18 @@ public class CheckingAccountPanel extends JPanel implements ManageAccountPanel.R
         }
     }
 
+    /**
+     * Displays an error message dialog.
+     *
+     * @param message the error message to display
+     */
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    /**
+     * Refreshes the account table model to reflect any changes in account data.
+     */
     @Override
     public void refresh() {
         tableModel.refresh();
