@@ -369,22 +369,39 @@ public class GenerateReportPanel extends JPanel {
     }
 
     private void loadSummaryPerAccount() {
-        Map<String, Double> summary = new HashMap<>();
-
+        Map<String, List<Transaction>> grouped = new HashMap<>();
         List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
+
         for (Transaction t : all) {
             if (currentTransactionType.equals("All") || t.getType().equalsIgnoreCase(currentTransactionType)) {
-                summary.put(t.getAccountNumber(), summary.getOrDefault(t.getAccountNumber(), 0.0) + t.getAmount());
+                grouped.computeIfAbsent(t.getAccountNumber(), k -> new ArrayList<>()).add(t);
             }
         }
 
         tableModel.setRowCount(0);
-        for (Map.Entry<String, Double> entry : summary.entrySet()) {
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
+
+        for (Map.Entry<String, List<Transaction>> entry : grouped.entrySet()) {
+            String account = entry.getKey();
+            List<Transaction> transactions = entry.getValue();
+            double total = 0.0;
+
+            for (Transaction t : transactions) {
+                total += t.getAmount();
+                tableModel.addRow(new Object[]{
+                        sdf.format(t.getDate()),
+                        t.getType(),
+                        t.getAccountNumber(),
+                        t.getAmount(),
+                        t.getDescription()
+                });
+            }
             tableModel.addRow(new Object[]{
-                    "", "", entry.getKey(), entry.getValue(), "Summary for account"
+                    "", "TOTAL", account, total, "Account Summary"
             });
         }
     }
+
 
     private void onDemandSearch() {
         String keyword = JOptionPane.showInputDialog(this, "Enter keyword to search in transactions:");
