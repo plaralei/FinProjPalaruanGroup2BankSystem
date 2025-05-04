@@ -5,11 +5,27 @@ import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+/**
+ * {@code MainMenuPanel} is the main UI panel for the Group 2 Bank System application.
+ * It serves as the entry point, providing users with a graphical interface that introduces
+ * the project, highlights different account types, and credits the developers.
+ * <p>
+ * The panel uses custom rendering and layout structures to provide a visually appealing interface.
+ * It includes sections for a title, project description, interactive account type cards, and a footer.
+ * </p>
+ *
+ * @author
+ */
 public class MainMenuPanel extends JPanel {
     private final MainFrame frame;
     private final Color PRIMARY_COLOR = new Color(12, 46, 97);
     private final Color SECONDARY_COLOR = new Color(82, 109, 130);
 
+    /**
+     * Constructs the main menu panel with a reference to the main frame.
+     *
+     * @param frame the main application frame that holds this panel
+     */
     public MainMenuPanel(MainFrame frame) {
         this.frame = frame;
         setLayout(new BorderLayout());
@@ -17,6 +33,10 @@ public class MainMenuPanel extends JPanel {
         initializeUI();
     }
 
+    /**
+     * Initializes and lays out all UI components of the main menu.
+     * This includes setting up the background design and organizing sub-panels.
+     */
     private void initializeUI() {
         JPanel contentPanel = new JPanel() {
             @Override
@@ -49,6 +69,11 @@ public class MainMenuPanel extends JPanel {
         add(contentPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Creates the panel containing the application title and decorative separator.
+     *
+     * @return the configured title panel
+     */
     private JPanel createTitlePanel() {
         JPanel panel = new JPanel();
         panel.setLayout(new BoxLayout(panel, BoxLayout.Y_AXIS));
@@ -75,6 +100,11 @@ public class MainMenuPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel that displays the description of the banking system project.
+     *
+     * @return the configured description panel
+     */
     private JPanel createDescriptionPanel() {
         JPanel panel = new JPanel();
         panel.setOpaque(false);
@@ -82,7 +112,14 @@ public class MainMenuPanel extends JPanel {
         panel.setLayout(new BorderLayout());
 
         JTextArea description = new JTextArea();
-        description.setText("A Banking System project for the course requirement of CS122 Computer Programming 2, emphasizing Graphical User Interface, File Input/Output, Java Collections Framework, and Streams API. This project aims to develop a robust banking system that efficiently manages essential banking transactions across various account types while providing a user-friendly interface for seamless interaction. Key features will include account creation, management, transaction history logging, and comprehensive report generation, all designed to replicate real-world banking operations. By leveraging Java's collection classes and implementing permanent data storage, this project will enhance the learning experience and ensure compliance with the specified requirements.");
+        description.setText("A Banking System project for the course requirement of CS122 Computer Programming 2, "
+                + "emphasizing Graphical User Interface, File Input/Output, Java Collections Framework, and Streams API. "
+                + "This project aims to develop a robust banking system that efficiently manages essential banking "
+                + "transactions across various account types while providing a user-friendly interface for seamless interaction. "
+                + "Key features will include account creation, management, transaction history logging, and comprehensive "
+                + "report generation, all designed to replicate real-world banking operations. By leveraging Java's collection "
+                + "classes and implementing permanent data storage, this project will enhance the learning experience and ensure "
+                + "compliance with the specified requirements.");
         description.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         description.setForeground(new Color(60, 60, 60));
         description.setLineWrap(true);
@@ -97,6 +134,11 @@ public class MainMenuPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel containing clickable cards for various account types.
+     *
+     * @return the configured account types panel
+     */
     private JPanel createAccountTypesPanel() {
         JPanel panel = new JPanel(new GridLayout(2, 2, 20, 20));
         panel.setOpaque(false);
@@ -110,6 +152,13 @@ public class MainMenuPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a card component representing a specific type of account.
+     *
+     * @param title       the title of the account type
+     * @param description a brief description of the account type
+     * @return the configured account card panel
+     */
     private JPanel createAccountCard(String title, String description) {
         JPanel card = new JPanel();
         card.setLayout(new BoxLayout(card, BoxLayout.Y_AXIS));
@@ -169,6 +218,11 @@ public class MainMenuPanel extends JPanel {
         return card;
     }
 
+    /**
+     * Creates the footer panel that contains developer credits.
+     *
+     * @return the configured footer panel
+     */
     private JPanel createFooterPanel() {
         JPanel footer = new JPanel();
         footer.setOpaque(false);
