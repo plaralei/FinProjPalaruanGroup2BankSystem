@@ -26,7 +26,6 @@ public class AccountStatementPanel extends JPanel {
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
         setBackground(new Color(245, 247, 250));
 
-        // Top panel with controls
         JPanel topPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         topPanel.setBackground(Color.WHITE);
 
@@ -80,7 +79,6 @@ public class AccountStatementPanel extends JPanel {
         scrollPane.setBorder(BorderFactory.createLineBorder(new Color(12, 46, 97), 2));
         add(scrollPane, BorderLayout.CENTER);
 
-        // Current balance label
         balanceLabel = new JLabel("Current Balance: ₱0.00");
         balanceLabel.setFont(new Font("Segoe UI", Font.BOLD, 16));
         balanceLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -114,7 +112,7 @@ public class AccountStatementPanel extends JPanel {
         Date endDate = new Date();
 
         List<Transaction> transactions = TransactionManager.getTransactionsByDateRange(startDate, endDate);
-        // Filter transactions for selected account
+
         transactions.removeIf(t -> !t.getAccountNumber().equals(accountNumber));
 
         statementTableModel.setRowCount(0);
@@ -189,4 +187,5 @@ public class AccountStatementPanel extends JPanel {
         table.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
         table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
     }
+
 }

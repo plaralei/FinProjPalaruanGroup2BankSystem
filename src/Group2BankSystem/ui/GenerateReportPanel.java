@@ -15,23 +15,19 @@ import java.util.List;
 public class GenerateReportPanel extends JPanel {
     private final JTabbedPane tabbedPane;
 
-    // Components for Daily Transactions tab
     private final DefaultTableModel dailyTableModel;
     private final JTable dailyTable;
     private final JButton dailyLoadBtn;
     private final JButton dailyEditBtn;
 
-    // Components for Summary of Transactions tab
     private final DefaultTableModel summaryTableModel;
     private final JTable summaryTable;
     private final JButton summaryLoadBtn;
 
-    // Components for Per Account tab
     private final DefaultTableModel perAccountTableModel;
     private final JTable perAccountTable;
     private final JButton perAccountLoadBtn;
 
-    // Components for On Demand Reports tab
     private final DefaultTableModel onDemandTableModel;
     private final JTable onDemandTable;
     private final JTextField onDemandSearchField;
@@ -50,7 +46,6 @@ public class GenerateReportPanel extends JPanel {
         tabbedPane.setBackground(Color.WHITE);
         tabbedPane.setOpaque(true);
 
-        // Daily Transactions Tab
         JPanel dailyPanel = new JPanel(new BorderLayout(10, 10));
         dailyPanel.setBackground(Color.WHITE);
         dailyPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -98,7 +93,6 @@ public class GenerateReportPanel extends JPanel {
 
         tabbedPane.addTab("Daily Transactions", dailyPanel);
 
-        // Summary of Transactions Tab
         JPanel summaryPanel = new JPanel(new BorderLayout(10, 10));
         summaryPanel.setBackground(Color.WHITE);
         summaryPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -130,7 +124,6 @@ public class GenerateReportPanel extends JPanel {
 
         tabbedPane.addTab("Summary of Transactions", summaryPanel);
 
-        // Per Account Tab
         JPanel perAccountPanel = new JPanel(new BorderLayout(10, 10));
         perAccountPanel.setBackground(Color.WHITE);
         perAccountPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -163,7 +156,6 @@ public class GenerateReportPanel extends JPanel {
 
         tabbedPane.addTab("Per Account", perAccountPanel);
 
-        // On Demand Reports Tab
         JPanel onDemandPanel = new JPanel(new BorderLayout(10, 10));
         onDemandPanel.setBackground(Color.WHITE);
         onDemandPanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
@@ -208,7 +200,6 @@ public class GenerateReportPanel extends JPanel {
 
         add(tabbedPane, BorderLayout.CENTER);
 
-        // Load initial data
         loadDailyTransactions();
     }
 

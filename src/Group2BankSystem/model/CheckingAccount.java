@@ -16,7 +16,6 @@ public abstract class CheckingAccount extends BankAccount {
     @Override
     public boolean encashCheck(double amount)
             throws InsufficientFundsException, AccountClosedException, InvalidAmountException {
-        // Encash check is effectively a withdrawal with check encashment transaction
         withdraw(amount);
         TransactionManager.addTransaction(accountNumber, "CHECK_ENCASHMENT", -amount, "Check encashment");
         return true;
