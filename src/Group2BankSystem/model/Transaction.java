@@ -53,7 +53,6 @@ public class Transaction implements Serializable {
         else category = TransactionCategory.GENERAL;
     }
 
-    // Getters and Setters
     public String getTransactionId() { return transactionId; }
     public Date getDate() { return date; }
     public String getAccountNumber() { return accountNumber; }

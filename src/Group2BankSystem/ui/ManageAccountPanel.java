@@ -124,7 +124,6 @@ public class ManageAccountPanel extends JPanel {
                 ));
             }
         });
-
         return card;
     }
 

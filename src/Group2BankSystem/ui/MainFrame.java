@@ -68,7 +68,6 @@ public class MainFrame extends JFrame {
     }
 
     private void refreshBankData() {
-        // Show a loading indicator
         JDialog loadingDialog = new JDialog(this, "Refreshing Data", true);
         JLabel loadingLabel = new JLabel("Refreshing bank data...", JLabel.CENTER);
         loadingLabel.setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -76,11 +75,10 @@ public class MainFrame extends JFrame {
         loadingDialog.setSize(250, 100);
         loadingDialog.setLocationRelativeTo(this);
 
-        // Use SwingWorker to perform the refresh in background
         SwingWorker<Void, Void> worker = new SwingWorker<>() {
             @Override
             protected Void doInBackground() {
-                // Force reload both accounts and transactions data
+
                 AccountManager.reloadAccounts();
                 TransactionManager.reloadTransactions();
                 return null;
