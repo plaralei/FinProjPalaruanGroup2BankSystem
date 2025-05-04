@@ -13,7 +13,6 @@ public class AccountStatementPanel extends JPanel {
     private final JComboBox<String> accountComboBox;
     private final JComboBox<String> timeFrameComboBox;
     private final JButton generateButton;
-    private final JButton printButton;
     private final DefaultTableModel statementTableModel;
     private final JTable statementTable;
     private final JLabel balanceLabel;
@@ -40,7 +39,7 @@ public class AccountStatementPanel extends JPanel {
         styleButton(generateButton);
         generateButton.addActionListener(e -> generateStatement());
 
-        printButton = new JButton("Print Statement");
+        JButton printButton = new JButton("Print Statement");
         styleButton(printButton);
         printButton.addActionListener(e -> printStatement());
 
@@ -152,6 +151,8 @@ public class AccountStatementPanel extends JPanel {
     }
 
     private void printStatement() {
+        System.out.println("Print button clicked"); // DEBUG LINE
+
         try {
             boolean complete = statementTable.print();
             if (complete) {
@@ -163,6 +164,7 @@ public class AccountStatementPanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Printing Failed: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
+
 
     private void styleButton(JButton btn) {
         btn.setBackground(new Color(12, 46, 97));

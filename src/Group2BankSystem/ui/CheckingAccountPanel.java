@@ -104,7 +104,7 @@ public class CheckingAccountPanel extends JPanel implements ManageAccountPanel.R
                         "Available Balance: %.2f",
                 account.getBalance(),
                 account.getOverdraftLimit(),
-                account.getAvailableBalance()
+                account.getBalance()
         );
 
         JOptionPane.showMessageDialog(this, message, "Account Details", JOptionPane.INFORMATION_MESSAGE);
@@ -113,6 +113,14 @@ public class CheckingAccountPanel extends JPanel implements ManageAccountPanel.R
     private void closeAccount(ActionEvent e) {
         CheckingAccount account = getSelectedAccount();
         if (account == null) return;
+
+        System.out.println("Account balance before closing: " + account.getBalance()); // Debug line
+
+        if (account.getBalance() > 0) {
+            JOptionPane.showMessageDialog(this,
+                    "You must withdraw the remaining balance before closing the account.");
+            return;
+        }
 
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Are you sure you want to close this account?",
@@ -124,6 +132,7 @@ public class CheckingAccountPanel extends JPanel implements ManageAccountPanel.R
             refresh();
         }
     }
+
 
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);

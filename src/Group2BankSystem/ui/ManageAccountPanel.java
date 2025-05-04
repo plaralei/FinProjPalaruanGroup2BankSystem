@@ -178,7 +178,6 @@ public class ManageAccountPanel extends JPanel {
 
         JButton backBtn = new JButton("Back");
         backBtn.addActionListener(e -> cardLayout.show(cardPanel, "TYPE_SELECTION"));
-        styleBackButton(backBtn);
 
         JButton selectBtn = new JButton("Select Account");
         selectBtn.addActionListener(e -> onAccountSelected());
@@ -294,19 +293,6 @@ public class ManageAccountPanel extends JPanel {
 
         panel.add(taskTabs, BorderLayout.CENTER);
 
-        JButton backBtn = new JButton("Back");
-        backBtn.addActionListener(e -> {
-            currentAccount = null;
-            taskTabs.removeAll();
-            cardLayout.show(cardPanel, "ACCOUNTS");
-        });
-        styleBackButton(backBtn);
-
-        JPanel backPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        backPanel.setBackground(new Color(245, 247, 250));
-        backPanel.add(backBtn);
-        panel.add(backPanel, BorderLayout.SOUTH);
-
         return panel;
     }
 
@@ -372,22 +358,35 @@ public class ManageAccountPanel extends JPanel {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.setBackground(Color.WHITE);
 
+        // Labels
         JLabel label = new JLabel("Account Holder Name:");
         label.setFont(new Font("Segoe UI", Font.PLAIN, 16));
-        JTextField nameField = new JTextField(account.getAccountHolderName(), 20);
-        nameField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
 
+        // Input fields
+        JTextField nameField = new JTextField(account.getAccountHolderName(), 20);
+        JTextField typeField = new JTextField(account.getAccountType(), 20);
+        nameField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+        typeField.setFont(new Font("Segoe UI", Font.PLAIN, 16));
+
+        // Save button
         JButton saveBtn = new JButton("Save Changes");
         saveBtn.setFont(new Font("Segoe UI", Font.BOLD, 16));
+
         saveBtn.addActionListener(e -> {
             String newName = nameField.getText().trim();
-            if (newName.isEmpty()) {
-                JOptionPane.showMessageDialog(panel, "Name cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
+            String newType = typeField.getText().trim();
+
+            if (newName.isEmpty() || newType.isEmpty()) {
+                JOptionPane.showMessageDialog(panel, "Name and Type cannot be empty.", "Error", JOptionPane.ERROR_MESSAGE);
                 return;
             }
+
             account.setAccountHolderName(newName);
             AccountManager.updateAccount(account);
             JOptionPane.showMessageDialog(panel, "Account updated successfully.", "Success", JOptionPane.INFORMATION_MESSAGE);
+
+            panel.revalidate();
+            panel.repaint();
         });
 
         panel.add(label);
@@ -396,6 +395,7 @@ public class ManageAccountPanel extends JPanel {
 
         return panel;
     }
+
 
     private JPanel createDepositPanel(BankAccount account) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));

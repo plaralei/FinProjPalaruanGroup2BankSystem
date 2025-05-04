@@ -176,7 +176,7 @@ public class MainMenuPanel extends JPanel {
         footer.setLayout(new BoxLayout(footer, BoxLayout.X_AXIS));
 
         JLabel creditLabel = new JLabel("Developed by Princess Laralei Palaruan, Jay-Lu Bautista, Keiser Angelo Lucena, " +
-                "Em Kenzi Elayda, Kirsten Rapada, Christine Sarquilla, Ellouise Advnicula ");
+                "Em Kenzi Elayda, Kirsten Rapada, Christine Sarquilla, Ellouise Advincula ");
         creditLabel.setFont(new Font("Segoe UI", Font.ITALIC, 12));
         creditLabel.setForeground(new Color(80, 80, 80));
         creditLabel.setAlignmentX(Component.CENTER_ALIGNMENT);

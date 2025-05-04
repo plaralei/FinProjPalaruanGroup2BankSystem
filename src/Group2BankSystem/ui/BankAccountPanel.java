@@ -103,6 +103,12 @@ public class BankAccountPanel extends JPanel implements ManageAccountPanel.Refre
         if (fromAccount == null) return;
 
         String toAccountNum = JOptionPane.showInputDialog(this, "Enter recipient account number:");
+
+        if (toAccountNum == null || toAccountNum.trim().isEmpty()) {
+            showError("Recipient account number cannot be empty.");
+            return;
+        }
+
         Optional<BankAccount> toAccount = AccountManager.getAccountByNumber(toAccountNum);
 
         if (toAccount.isEmpty()) {
@@ -111,16 +117,33 @@ public class BankAccountPanel extends JPanel implements ManageAccountPanel.Refre
         }
 
         String amountStr = JOptionPane.showInputDialog(this, "Enter transfer amount:");
+
         try {
             double amount = Double.parseDouble(amountStr);
+
+
+            if (amount <= 0) {
+                showError("Transfer amount must be greater than 0.");
+                return;
+            }
+
+            if (fromAccount.getBalance() < amount) {
+                showError("Insufficient funds.");
+                return;
+            }
+
             if (fromAccount.transfer(toAccount.get(), amount)) {
                 JOptionPane.showMessageDialog(this, "Transfer successful");
                 refresh();
+            } else {
+                showError("Transfer failed due to unknown error.");
             }
+
         } catch (NumberFormatException ex) {
-            showError("Please enter a valid number");
+            showError("Please enter a valid number for the amount.");
         }
     }
+
 
     private void viewBalance(ActionEvent e) {
         BankAccount account = getSelectedAccount();
@@ -135,6 +158,11 @@ public class BankAccountPanel extends JPanel implements ManageAccountPanel.Refre
         BankAccount account = getSelectedAccount();
         if (account == null) return;
 
+        if (account.getBalance() != 0) {
+            JOptionPane.showMessageDialog(this, "You cannot close the account because it has a non-zero balance.");
+            return;
+        }
+
         int confirm = JOptionPane.showConfirmDialog(this,
                 "Are you sure you want to close this account?",
                 "Confirm Close", JOptionPane.YES_NO_OPTION);
@@ -145,6 +173,7 @@ public class BankAccountPanel extends JPanel implements ManageAccountPanel.Refre
             refresh();
         }
     }
+
 
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
