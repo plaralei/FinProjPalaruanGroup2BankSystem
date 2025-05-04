@@ -45,18 +45,26 @@ public class AccountStatementPanel extends JPanel {
         styleButton(printButton);
         printButton.addActionListener(e -> printStatement());
 
-        topPanel.add(new JLabel("Select Account:"));
-        topPanel.add(accountComboBox);
-        topPanel.add(Box.createHorizontalStrut(15));
-        topPanel.add(new JLabel("Select Time Frame:"));
-        topPanel.add(timeFrameComboBox);
-        topPanel.add(Box.createHorizontalStrut(15));
-        topPanel.add(generateButton);
-        topPanel.add(printButton);
+        topPanel.setLayout(new BoxLayout(topPanel, BoxLayout.Y_AXIS));
+
+        JPanel row1 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        row1.setBackground(Color.WHITE);
+        row1.add(new JLabel("Select Account:"));
+        row1.add(accountComboBox);
+        row1.add(Box.createHorizontalStrut(15));
+        row1.add(new JLabel("Select Time Frame:"));
+        row1.add(timeFrameComboBox);
+
+        JPanel row2 = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        row2.setBackground(Color.WHITE);
+        row2.add(generateButton);
+        row2.add(printButton);
+
+        topPanel.add(row1);
+        topPanel.add(row2);
 
         add(topPanel, BorderLayout.NORTH);
 
-        // Table for transactions
         String[] columns = {"Date", "Type", "Amount", "Description"};
         statementTableModel = new DefaultTableModel(columns, 0) {
             @Override public boolean isCellEditable(int row, int col) { return false; }
