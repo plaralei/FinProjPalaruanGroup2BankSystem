@@ -6,11 +6,28 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 
+/**
+ * A panel for managing credit card accounts in the banking system.
+ * This class provides a user interface for displaying credit card accounts
+ * and performing various operations such as making charges, payments,
+ * and viewing account details.
+ */
 public class CreditCardAccountPanel extends JPanel implements ManageAccountPanel.Refreshable {
+    /** Reference to parent management panel. */
     private final ManageAccountPanel parent;
+
+    /** Table model for displaying credit card accounts. */
     private final CreditCardAccountTableModel tableModel;
+
+    /** Table component displaying credit card accounts. */
     private final JTable accountTable;
 
+    /**
+     * Constructs a new CreditCardAccountPanel with a reference to its parent panel.
+     * Initializes the UI components and sets up the table for displaying accounts.
+     *
+     * @param parent the parent ManageAccountPanel that contains this panel
+     */
     public CreditCardAccountPanel(ManageAccountPanel parent) {
         this.parent = parent;
         setLayout(new BorderLayout());
@@ -34,12 +51,25 @@ public class CreditCardAccountPanel extends JPanel implements ManageAccountPanel
         add(buttonPanel, BorderLayout.SOUTH);
     }
 
+    /**
+     * Creates a styled button with the specified text and action listener.
+     *
+     * @param text the text to display on the button
+     * @param action the action listener to handle button clicks
+     * @return a configured JButton
+     */
     private JButton createOperationButton(String text, ActionListener action) {
         JButton button = new JButton(text);
         button.addActionListener(action);
         return button;
     }
 
+    /**
+     * Retrieves the currently selected credit card account from the table.
+     * Shows an error message if no account is selected.
+     *
+     * @return the selected CreditCardAccount, or null if no account is selected
+     */
     private CreditCardAccount getSelectedAccount() {
         int row = accountTable.getSelectedRow();
         if (row == -1) {
@@ -49,6 +79,11 @@ public class CreditCardAccountPanel extends JPanel implements ManageAccountPanel
         return tableModel.getAccountAt(row);
     }
 
+    /**
+     * Opens the edit account dialog for the selected credit card account.
+     *
+     * @param e the action event from the edit button
+     */
     private void editAccount(ActionEvent e) {
         CreditCardAccount account = getSelectedAccount();
         if (account != null) {
@@ -57,6 +92,12 @@ public class CreditCardAccountPanel extends JPanel implements ManageAccountPanel
         }
     }
 
+    /**
+     * Handles charging an amount to the selected credit card account.
+     * Prompts the user for a charge amount and processes the transaction.
+     *
+     * @param e the action event from the charge button
+     */
     private void chargeCard(ActionEvent e) {
         CreditCardAccount account = getSelectedAccount();
         if (account == null) return;
@@ -73,6 +114,12 @@ public class CreditCardAccountPanel extends JPanel implements ManageAccountPanel
         }
     }
 
+    /**
+     * Handles making a payment on the selected credit card account.
+     * Prompts the user for a payment amount and processes the transaction.
+     *
+     * @param e the action event from the payment button
+     */
     private void makePayment(ActionEvent e) {
         CreditCardAccount account = getSelectedAccount();
         if (account == null) return;
@@ -89,6 +136,12 @@ public class CreditCardAccountPanel extends JPanel implements ManageAccountPanel
         }
     }
 
+    /**
+     * Displays detailed information about the selected credit card account.
+     * Shows current balance due, credit limit, and available credit.
+     *
+     * @param e the action event from the view details button
+     */
     private void viewDetails(ActionEvent e) {
         CreditCardAccount account = getSelectedAccount();
         if (account == null) return;
@@ -105,6 +158,13 @@ public class CreditCardAccountPanel extends JPanel implements ManageAccountPanel
         JOptionPane.showMessageDialog(this, message, "Account Details", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Handles closing the selected credit card account.
+     * Checks if the account can be closed (no outstanding balance)
+     * and prompts for confirmation before closing.
+     *
+     * @param e the action event from the close account button
+     */
     private void closeAccount(ActionEvent e) {
         CreditCardAccount account = getSelectedAccount();
         if (account == null) return;
@@ -125,10 +185,19 @@ public class CreditCardAccountPanel extends JPanel implements ManageAccountPanel
         }
     }
 
+    /**
+     * Displays an error message to the user.
+     *
+     * @param message the error message to display
+     */
     private void showError(String message) {
         JOptionPane.showMessageDialog(this, message, "Error", JOptionPane.ERROR_MESSAGE);
     }
 
+    /**
+     * Refreshes the table data to reflect any changes in accounts.
+     * Implements the Refreshable interface required by ManageAccountPanel.
+     */
     @Override
     public void refresh() {
         tableModel.refresh();
