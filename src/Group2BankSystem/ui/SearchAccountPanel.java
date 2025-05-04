@@ -48,7 +48,6 @@ public class SearchAccountPanel extends JPanel {
         resultTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane scrollPane = new JScrollPane(resultTable);
 
-        // Customize the table styling
         resultTable.setRowHeight(25);
         resultTable.setFont(new Font("Segoe UI", Font.PLAIN, 14));
         resultTable.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 14));
@@ -89,7 +88,6 @@ public class SearchAccountPanel extends JPanel {
 
             @Override
             public void changedUpdate(DocumentEvent e) {
-                // Not used for plain text fields
             }
         });
 
