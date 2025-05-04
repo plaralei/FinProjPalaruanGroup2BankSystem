@@ -46,7 +46,7 @@ public class ReportPanel extends JPanel {
         tableModel = new DefaultTableModel(columns, 0) {
             @Override
             public boolean isCellEditable(int row, int column) {
-                return column == 3; // Only amount is editable
+                return column == 3;
             }
         };
 
