@@ -59,9 +59,6 @@ public class AccountManager {
         saveAccounts();
     }
 
-    /**
-     * Force a reload of accounts from the data file
-     */
     public static synchronized void reloadAccounts() {
         loadAccounts();
     }
