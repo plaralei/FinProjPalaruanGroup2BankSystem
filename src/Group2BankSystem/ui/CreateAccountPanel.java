@@ -8,19 +8,41 @@ import java.awt.*;
 import java.awt.event.*;
 import java.text.NumberFormat;
 
-
+/**
+ * A panel for creating new bank accounts in the banking system.
+ * This class provides a user interface for account creation with
+ * multiple views: account type selection, account form, and success confirmation.
+ */
 public class CreateAccountPanel extends JPanel {
+    /** The parent MainFrame reference. */
     private final MainFrame frame;
+
+    /** Card layout for navigating between different panels. */
     private final CardLayout cardLayout = new CardLayout();
+
+    /** Container for all card panels. */
     private final JPanel cards = new JPanel(cardLayout);
 
+    /** The selected account type to be created. */
     private String selectedAccountType;
+
+    /** Tracks the currently visible card for navigation. */
     private String currentCard;
 
+    /** Text field for entering the account holder's name. */
     private JTextField nameField;
+
+    /** Formatted field for entering initial deposit or credit limit amount. */
     private JFormattedTextField amountField;
+
+    /** Label that displays amount requirements based on account type. */
     private JLabel amountLabel;
 
+    /**
+     * Constructs a CreateAccountPanel with a reference to the main application frame.
+     *
+     * @param frame the parent MainFrame that contains this panel
+     */
     public CreateAccountPanel(MainFrame frame) {
         this.frame = frame;
         setLayout(new BorderLayout());
@@ -28,6 +50,10 @@ public class CreateAccountPanel extends JPanel {
         currentCard = "TYPE_SELECTION";
     }
 
+    /**
+     * Initializes the user interface components and layout.
+     * Sets up the card layout with selection, form and success panels.
+     */
     private void initializeUI() {
         JPanel typePanel = createTypeSelectionPanel();
         JPanel formPanel = createFormPanel();
@@ -64,6 +90,11 @@ public class CreateAccountPanel extends JPanel {
         add(createBackButton(), BorderLayout.SOUTH);
     }
 
+    /**
+     * Creates the account type selection panel with different account options.
+     *
+     * @return a JPanel containing account type selection cards
+     */
     private JPanel createTypeSelectionPanel() {
         JPanel panel = new JPanel(new GridLayout(2, 2, 25, 25));
         panel.setBackground(new Color(245, 247, 250));
@@ -83,6 +114,15 @@ public class CreateAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a card representing an account type option.
+     *
+     * @param title the name of the account type
+     * @param emoji a visual icon/emoji for the account type
+     * @param desc the description of the account type
+     * @param requirement the minimum deposit/credit requirement
+     * @return a styled JPanel representing the account type
+     */
     private JPanel createAccountTypeCard(String title, String emoji, String desc, String requirement) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(Color.WHITE);
@@ -165,6 +205,11 @@ public class CreateAccountPanel extends JPanel {
         return card;
     }
 
+    /**
+     * Creates the form panel for entering account details.
+     *
+     * @return a JPanel with form fields for account creation
+     */
     private JPanel createFormPanel() {
         JPanel card = new RoundedPanel(20);
         card.setBackground(Color.WHITE);
@@ -222,8 +267,14 @@ public class CreateAccountPanel extends JPanel {
         return wrapper;
     }
 
+    /** The label that displays the selected account type in the form. */
     private JLabel typeLabel;
 
+    /**
+     * Updates form labels and requirements based on selected account type.
+     * This method is called when an account type is selected to display
+     * appropriate form fields and requirements.
+     */
     private void updateFormLabels() {
         if (typeLabel != null) {
             typeLabel.setText("Creating: " + selectedAccountType);
@@ -253,13 +304,25 @@ public class CreateAccountPanel extends JPanel {
         amountLabel.setText("<html><b>" + labelText + "</b> <font color='#28a745'>" + requirement + "</font></html>");
     }
 
+    /**
+     * Panel extension that draws with rounded corners.
+     * Used to create panels with a modern, rounded appearance.
+     */
     private static class RoundedPanel extends JPanel {
+        /** The radius of the corners in pixels. */
         private final int cornerRadius;
+
+        /**
+         * Creates a new rounded panel with the specified corner radius.
+         *
+         * @param radius the corner radius in pixels
+         */
         public RoundedPanel(int radius) {
             super();
             cornerRadius = radius;
             setOpaque(false);
         }
+
         @Override
         protected void paintComponent(Graphics g) {
             Graphics2D g2 = (Graphics2D) g.create();
@@ -271,6 +334,11 @@ public class CreateAccountPanel extends JPanel {
         }
     }
 
+    /**
+     * Creates the success panel shown after account creation.
+     *
+     * @return a JPanel with success message and account details
+     */
     private JPanel createSuccessPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBorder(BorderFactory.createEmptyBorder(50, 50, 50, 50));
@@ -300,8 +368,15 @@ public class CreateAccountPanel extends JPanel {
         return panel;
     }
 
+    /** Text area for displaying account details on success screen. */
     private JTextArea detailsArea;
 
+    /**
+     * Handles the account creation process when form is submitted.
+     * Validates input fields and creates the appropriate account type.
+     *
+     * @param e the action event from the form submit button
+     */
     private void createAccount(ActionEvent e) {
         try {
             String name = validateName();
@@ -323,6 +398,12 @@ public class CreateAccountPanel extends JPanel {
         }
     }
 
+    /**
+     * Validates the account holder name from the form.
+     *
+     * @return the validated account holder name
+     * @throws IllegalArgumentException if name is empty
+     */
     private String validateName() throws IllegalArgumentException {
         String name = nameField.getText().trim();
         if (name.isEmpty()) {
@@ -331,6 +412,13 @@ public class CreateAccountPanel extends JPanel {
         return name;
     }
 
+    /**
+     * Validates the amount (initial deposit or credit limit) entered in the form.
+     * Different account types have different minimum requirements.
+     *
+     * @return the validated amount as a double
+     * @throws InvalidAmountException if amount is invalid or below minimum
+     */
     private double validateAmount() throws InvalidAmountException {
         try {
             double amount = (amountField.getValue() != null)
@@ -358,6 +446,11 @@ public class CreateAccountPanel extends JPanel {
         }
     }
 
+    /**
+     * Updates the success panel with details of the created account.
+     *
+     * @param account the newly created bank account
+     */
     private void showSuccessMessage(BankAccount account) {
         if (detailsArea != null) {
             String details = String.format("Account Number: %s\n" +
@@ -373,6 +466,10 @@ public class CreateAccountPanel extends JPanel {
         }
     }
 
+    /**
+     * Resets the form and returns to the account type selection screen.
+     * This is used to create another account after successful creation.
+     */
     public void resetForm() {
         nameField.setText("");
         amountField.setValue(null);
@@ -380,6 +477,11 @@ public class CreateAccountPanel extends JPanel {
         currentCard = "TYPE_SELECTION";
     }
 
+    /**
+     * Creates a back navigation button with appropriate styling.
+     *
+     * @return a styled JButton for back navigation
+     */
     private JButton createBackButton() {
         JButton backBtn = new JButton("Back");
         backBtn.addActionListener(e -> handleBackNavigation());
@@ -405,6 +507,10 @@ public class CreateAccountPanel extends JPanel {
         return backBtn;
     }
 
+    /**
+     * Handles navigation when back button is pressed.
+     * The behavior depends on the current visible card.
+     */
     private void handleBackNavigation() {
         switch (currentCard) {
             case "TYPE_SELECTION":
@@ -420,6 +526,14 @@ public class CreateAccountPanel extends JPanel {
                 break;
         }
     }
+
+    /**
+     * Applies consistent styling to a text area.
+     *
+     * @param area the JTextArea to style
+     * @param size the font size
+     * @param bulletPoints whether to add space for bullet points
+     */
     private void styleTextArea(JTextArea area, int size, boolean bulletPoints) {
         area.setFont(new Font("Segoe UI", Font.PLAIN, size));
         area.setForeground(new Color(60, 60, 60));
@@ -430,6 +544,11 @@ public class CreateAccountPanel extends JPanel {
         area.setMargin(new Insets(10, bulletPoints ? 30 : 10, 10, 10));
     }
 
+    /**
+     * Applies consistent styling to a button.
+     *
+     * @param button the JButton to style
+     */
     private void styleButton(JButton button) {
         button.setFont(new Font("Segoe UI", Font.BOLD, 16));
         button.setForeground(Color.WHITE);
@@ -437,6 +556,12 @@ public class CreateAccountPanel extends JPanel {
         button.setCursor(new Cursor(Cursor.HAND_CURSOR));
     }
 
+    /**
+     * Creates a styled form field label.
+     *
+     * @param text the label text
+     * @return a styled JLabel
+     */
     private JLabel createLabel(String text) {
         JLabel label = new JLabel(text);
         label.setFont(new Font("Segoe UI", Font.PLAIN, 16));
@@ -445,6 +570,11 @@ public class CreateAccountPanel extends JPanel {
         return label;
     }
 
+    /**
+     * Displays an error message with additional account requirements.
+     *
+     * @param message the primary error message
+     */
     private void showError(String message) {
         String detailedMessage = message;
 
