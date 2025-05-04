@@ -8,26 +8,51 @@ import java.util.Optional;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+/**
+ * Panel for managing different types of bank accounts in the banking system.
+ * This class provides a user interface for account management with multiple views:
+ * account type selection, account listing, and account-specific operations.
+ */
 public class ManageAccountPanel extends JPanel {
+    /** Reference to the parent MainFrame. */
     private final MainFrame frame;
 
+    /** Card layout for navigating between different panels. */
     private final CardLayout cardLayout = new CardLayout();
+
+    /** Container for all card panels. */
     private final JPanel cardPanel = new JPanel(cardLayout);
 
+    /** The selected account type for filtering accounts. */
     private String selectedAccountType;
+
+    /** Table for displaying account listings. */
     private JTable accountsTable;
+
+    /** Table model for managing account data display. */
     private DefaultTableModel accountsTableModel;
 
+    /** The currently selected account for operations. */
     private BankAccount currentAccount;
 
+    /** Panel for displaying task content. */
     private JPanel taskContentPanel;
 
+    /**
+     * Constructs a ManageAccountPanel with a reference to the main application frame.
+     *
+     * @param frame the parent MainFrame that contains this panel
+     */
     public ManageAccountPanel(MainFrame frame) {
         this.frame = frame;
         setLayout(new BorderLayout());
         initializeUI();
     }
 
+    /**
+     * Initializes the user interface components and layout.
+     * Sets up the card layout with type selection, accounts, and tasks panels.
+     */
     private void initializeUI() {
         JPanel typeSelectionPanel = createTypeSelectionPanel();
         JPanel accountsPanel = createAccountsPanel();
@@ -43,6 +68,11 @@ public class ManageAccountPanel extends JPanel {
         cardLayout.show(cardPanel, "TYPE_SELECTION");
     }
 
+    /**
+     * Creates the account type selection panel with different account options.
+     *
+     * @return a JPanel containing account type selection cards
+     */
     private JPanel createTypeSelectionPanel() {
         JPanel panel = new JPanel(new GridLayout(2, 2, 30, 30));
         panel.setBackground(new Color(245, 247, 250));
@@ -61,6 +91,14 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a styled card representing an account type option.
+     *
+     * @param title the name of the account type
+     * @param emoji a visual icon/emoji for the account type
+     * @param description the description of the account type functionality
+     * @return a styled JPanel representing the account type
+     */
     private JPanel createColoredAccountTypeCard(String title, String emoji, String description) {
         JPanel card = new JPanel(new BorderLayout());
         card.setBackground(new Color(224, 235, 255));
@@ -127,6 +165,11 @@ public class ManageAccountPanel extends JPanel {
         return card;
     }
 
+    /**
+     * Creates the accounts panel for displaying and selecting accounts.
+     *
+     * @return a JPanel containing the accounts table and operation buttons
+     */
     private JPanel createAccountsPanel() {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(new Color(245, 247, 250));
@@ -193,8 +236,14 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /** Label that displays the currently selected account type. */
     private JLabel accountTypeLabel;
 
+    /**
+     * Applies consistent styling to refresh button.
+     *
+     * @param btn the JButton to style
+     */
     private void styleRefreshButton(JButton btn) {
         Color base = new Color(40, 167, 69);
         Color hover = new Color(33, 136, 56);
@@ -211,6 +260,7 @@ public class ManageAccountPanel extends JPanel {
                 btn.setIcon(refreshIcon);
             }
         } catch (Exception e) {
+            // Icon loading failed, continue without icon
         }
 
         btn.addMouseListener(new MouseAdapter() {
@@ -224,6 +274,10 @@ public class ManageAccountPanel extends JPanel {
         });
     }
 
+    /**
+     * Loads accounts of the selected type into the accounts table.
+     * Updates the UI to display account information and handles empty results.
+     */
     private void loadAccounts() {
         if (selectedAccountType != null) {
             accountsTableModel.setRowCount(0);
@@ -257,6 +311,10 @@ public class ManageAccountPanel extends JPanel {
         }
     }
 
+    /**
+     * Refreshes account data by reloading from the data source.
+     * Displays a loading dialog during the refresh process.
+     */
     private void refreshAccounts() {
         JDialog loadingDialog = new JDialog(frame, "Refreshing Data", false);
         JLabel loadingLabel = new JLabel("Refreshing account data...", JLabel.CENTER);
@@ -283,6 +341,11 @@ public class ManageAccountPanel extends JPanel {
         worker.execute();
     }
 
+    /**
+     * Creates the tasks panel for displaying account-specific operations.
+     *
+     * @return a JPanel containing the tabbed pane for account operations
+     */
     private JPanel createTasksPanel() {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
         panel.setBackground(new Color(245, 247, 250));
@@ -310,8 +373,13 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /** Tabbed pane for organizing account operation tasks. */
     private JTabbedPane taskTabs;
 
+    /**
+     * Handles the selection of an account from the accounts table.
+     * Creates task tabs based on the selected account type.
+     */
     private void onAccountSelected() {
         int row = accountsTable.getSelectedRow();
         if (row < 0) {
@@ -329,6 +397,12 @@ public class ManageAccountPanel extends JPanel {
         cardLayout.show(cardPanel, "TASKS");
     }
 
+    /**
+     * Creates appropriate task tabs based on the account type.
+     * Different account types have different available operations.
+     *
+     * @param account the bank account for which to create task tabs
+     */
     private void createTaskTabsForAccount(BankAccount account) {
         taskTabs.removeAll();
 
@@ -364,10 +438,22 @@ public class ManageAccountPanel extends JPanel {
         }
     }
 
+    /**
+     * Adds a task tab to the tabbed pane.
+     *
+     * @param title the title of the tab
+     * @param panel the panel to add as tab content
+     */
     private void addTaskTab(String title, JPanel panel) {
         taskTabs.addTab(title, panel);
     }
 
+    /**
+     * Creates a panel for editing account holder information.
+     *
+     * @param account the account to edit
+     * @return a JPanel with account editing functionality
+     */
     private JPanel createEditAccountPanel(BankAccount account) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.setBackground(Color.WHITE);
@@ -397,6 +483,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel for depositing money into an account.
+     *
+     * @param account the account to deposit to
+     * @return a JPanel with deposit functionality
+     */
     private JPanel createDepositPanel(BankAccount account) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.setBackground(Color.WHITE);
@@ -429,6 +521,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel for withdrawing money from an account.
+     *
+     * @param account the account to withdraw from
+     * @return a JPanel with withdrawal functionality
+     */
     private JPanel createWithdrawalPanel(BankAccount account) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.setBackground(Color.WHITE);
@@ -461,6 +559,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel for transferring money between accounts.
+     *
+     * @param account the source account for the transfer
+     * @return a JPanel with transfer functionality
+     */
     private JPanel createTransferMoneyPanel(BankAccount account) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.setBackground(Color.WHITE);
@@ -516,6 +620,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel for closing an account.
+     *
+     * @param account the account to close
+     * @return a JPanel with account closing functionality
+     */
     private JPanel createCloseAccountPanel(BankAccount account) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.setBackground(Color.WHITE);
@@ -535,6 +645,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel for encashing checks on a checking account.
+     *
+     * @param account the checking account to encash from
+     * @return a JPanel with check encashment functionality
+     */
     private JPanel createEncashCheckPanel(CheckingAccount account) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.setBackground(Color.WHITE);
@@ -568,6 +684,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel for inquiring credit balance information.
+     *
+     * @param account the account to inquire about
+     * @return a JPanel with credit balance display
+     */
     private JPanel createInquireCreditBalancePanel(BankAccount account) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -585,6 +707,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel for computing monthly interest for investment accounts.
+     *
+     * @param account the investment account to compute interest for
+     * @return a JPanel with interest computation functionality
+     */
     private JPanel createComputeInterestPanel(InvestmentAccount account) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.setBackground(Color.WHITE);
@@ -609,6 +737,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel for charging to a credit card account.
+     *
+     * @param account the credit card account to charge to
+     * @return a JPanel with charge functionality
+     */
     private JPanel createChargeCardPanel(CreditCardAccount account) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.setBackground(Color.WHITE);
@@ -641,6 +775,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel for making payments to a credit card account.
+     *
+     * @param account the credit card account to make payments to
+     * @return a JPanel with payment functionality
+     */
     private JPanel createPayCardPanel(CreditCardAccount account) {
         JPanel panel = new JPanel(new FlowLayout(FlowLayout.LEFT));
         panel.setBackground(Color.WHITE);
@@ -673,6 +813,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel for inquiring about credit card charges and limits.
+     *
+     * @param account the credit card account to inquire about
+     * @return a JPanel with credit charges and limits display
+     */
     private JPanel createInquireChargesPanel(CreditCardAccount account) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -687,6 +833,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a panel for inquiring about account balance.
+     *
+     * @param account the account to inquire about
+     * @return a JPanel with balance display
+     */
     private JPanel createInquireBalancePanel(BankAccount account) {
         JPanel panel = new JPanel(new BorderLayout());
         panel.setBackground(Color.WHITE);
@@ -700,6 +852,12 @@ public class ManageAccountPanel extends JPanel {
         return panel;
     }
 
+    /**
+     * Creates a back navigation button for the panel.
+     * The button behavior depends on the current visible card.
+     *
+     * @return a styled JButton for back navigation
+     */
     private JButton createBackButton() {
         JButton backBtn = new JButton("Back");
         backBtn.addActionListener(e -> {
@@ -716,6 +874,11 @@ public class ManageAccountPanel extends JPanel {
         return backBtn;
     }
 
+    /**
+     * Gets the currently visible card component.
+     *
+     * @return the currently visible Component or null if none is visible
+     */
     private Component getVisibleCard() {
         for (Component comp : cardPanel.getComponents()) {
             if (comp.isVisible()) {
@@ -725,6 +888,11 @@ public class ManageAccountPanel extends JPanel {
         return null;
     }
 
+    /**
+     * Applies consistent styling to primary buttons.
+     *
+     * @param btn the JButton to style
+     */
     private void stylePrimaryButton(JButton btn) {
         btn.setBackground(new Color(12, 46, 97));
         btn.setForeground(Color.WHITE);
@@ -734,6 +902,12 @@ public class ManageAccountPanel extends JPanel {
         btn.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 20));
     }
 
+    /**
+     * Applies consistent styling to back buttons.
+     * Sets colors, fonts, borders, and hover effects.
+     *
+     * @param btn the JButton to style
+     */
     private void styleBackButton(JButton btn) {
         Color base = new Color(108, 117, 125);
         Color hover = new Color(90, 98, 105);
@@ -754,11 +928,23 @@ public class ManageAccountPanel extends JPanel {
         });
     }
 
+    /**
+     * Returns a reference to the parent MainFrame.
+     *
+     * @return the parent MainFrame instance
+     */
     public MainFrame getMainFrame() {
         return frame;
     }
 
+    /**
+     * Interface for panels that can refresh their data.
+     * Implemented by panels that need to update their display based on data changes.
+     */
     public interface Refreshable {
+        /**
+         * Refreshes the panel's data display.
+         */
         void refresh();
     }
 }
