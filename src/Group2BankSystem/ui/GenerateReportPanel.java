@@ -12,7 +12,6 @@ import java.util.*;
 import java.util.List;
 
 public class GenerateReportPanel extends JPanel {
-    private final JPanel buttonPanel;
     private final JPanel reportOptionsPanel;
     private final DefaultTableModel tableModel;
     private final JTable reportTable;
@@ -22,24 +21,24 @@ public class GenerateReportPanel extends JPanel {
         setLayout(new BorderLayout(12, 12));
         setBorder(BorderFactory.createEmptyBorder(15, 15, 15, 15));
 
-        buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
-        String[] transactionTypes = {"All", "Deposit", "Withdrawal", "Transfer", "Fee", "Interest"};
-        for (String type : transactionTypes) {
-            JButton btn = new JButton(type);
-            btn.setFocusPainted(false);
-            btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
-            btn.setBackground(type.equals(currentTransactionType) ? new Color(12, 46, 97) : UIManager.getColor("Button.background"));
-            btn.setForeground(type.equals(currentTransactionType) ? Color.WHITE : Color.BLACK);
-            btn.setPreferredSize(new Dimension(110, 32));
-            btn.addActionListener(e -> {
-                currentTransactionType = type;
-                updateButtonStyles();
-                loadReportOptions();
-                loadTransactions();
-            });
-            buttonPanel.add(btn);
-        }
-        add(buttonPanel, BorderLayout.NORTH);
+//        buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 5));
+//        String[] transactionTypes = {"All", "Deposit", "Withdrawal", "Transfer", "Fee", "Interest"};
+//        for (String type : transactionTypes) {
+//            JButton btn = new JButton(type);
+//            btn.setFocusPainted(false);
+//            btn.setFont(new Font("Segoe UI", Font.BOLD, 14));
+//            btn.setBackground(type.equals(currentTransactionType) ? new Color(12, 46, 97) : UIManager.getColor("Button.background"));
+//            btn.setForeground(type.equals(currentTransactionType) ? Color.WHITE : Color.BLACK);
+//            btn.setPreferredSize(new Dimension(110, 32));
+//            btn.addActionListener(e -> {
+//                currentTransactionType = type;
+//                updateButtonStyles();
+//                loadReportOptions();
+//                loadTransactions();
+//            });
+//            buttonPanel.add(btn);
+//        }
+//        add(buttonPanel, BorderLayout.NORTH);
 
         reportOptionsPanel = new JPanel();
         reportOptionsPanel.setLayout(new BoxLayout(reportOptionsPanel, BoxLayout.Y_AXIS));
@@ -150,20 +149,20 @@ public class GenerateReportPanel extends JPanel {
         });
     }
 
-    private void updateButtonStyles() {
-        for (Component comp : buttonPanel.getComponents()) {
-            if (comp instanceof JButton) {
-                JButton btn = (JButton) comp;
-                if (btn.getText().equals(currentTransactionType)) {
-                    btn.setBackground(new Color(12, 46, 97));
-                    btn.setForeground(Color.WHITE);
-                } else {
-                    btn.setBackground(UIManager.getColor("Button.background"));
-                    btn.setForeground(Color.BLACK);
-                }
-            }
-        }
-    }
+//    private void updateButtonStyles() {
+//        for (Component comp : buttonPanel.getComponents()) {
+//            if (comp instanceof JButton) {
+//                JButton btn = (JButton) comp;
+//                if (btn.getText().equals(currentTransactionType)) {
+//                    btn.setBackground(new Color(12, 46, 97));
+//                    btn.setForeground(Color.WHITE);
+//                } else {
+//                    btn.setBackground(UIManager.getColor("Button.background"));
+//                    btn.setForeground(Color.BLACK);
+//                }
+//            }
+//        }
+//    }
 
     private void filterTransactionsByType(String type) {
         List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
@@ -353,19 +352,19 @@ public class GenerateReportPanel extends JPanel {
     }
 
     private void loadSummaryByType() {
-        Map<String, Double> summary = new HashMap<>();
         List<Transaction> all = TransactionManager.getTransactionsByDateRange(new Date(0), new Date(Long.MAX_VALUE));
-        for (Transaction t : all) {
-            summary.put(t.getType(), summary.getOrDefault(t.getType(), 0.0) + t.getAmount());
-        }
+        tableModel.setRowCount(0); // Clear the table
+        SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm");
 
-        tableModel.setRowCount(0);
-        for (Map.Entry<String, Double> entry : summary.entrySet()) {
-            if (currentTransactionType.equals("All") || entry.getKey().equalsIgnoreCase(currentTransactionType)) {
-                tableModel.addRow(new Object[]{
-                        "", entry.getKey(), "", entry.getValue(), "Summary of " + entry.getKey()
-                });
-            }
+        double totalAmount = 0.0;
+        for (Transaction t : all) {
+            tableModel.addRow(new Object[]{
+                    sdf.format(t.getDate()),
+                    t.getType(),
+                    t.getAccountNumber(),
+                    t.getAmount(),
+                    t.getDescription()
+            });
         }
     }
 
